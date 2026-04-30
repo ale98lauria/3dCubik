@@ -1,8 +1,6 @@
-<p align="center">
-  <a href="https://ailligence.it" target="_blank">
-    <img src="https://ailligence.it/og-image.png" alt="ailligence.it" height="80">
-  </a>
-</p>
+<a href="https://ailligence.it" target="_blank">
+  <img src="https://ailligence.it/og-image.png" alt="ailligence.it" width="100%">
+</a>
 
 <h1 align="center">3D Cubik — Catalogo Prodotti</h1>
 
