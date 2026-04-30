@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>3D Cubik — Admin</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --dark: #111827; --accent: #4f46e5; --light: #f9fafb; --white: #fff;
+  --border: #e5e7eb; --danger: #ef4444; --success: #10b981;
+  --radius: 8px; --shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--light); color: var(--dark); min-height: 100vh; }
+
+/* HEADER */
+.header { background: var(--dark); color: #fff; padding: 0 24px; height: 56px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+.header-logo { font-size: 1.1rem; font-weight: 800; letter-spacing: .03em; }
+.header-logo span { color: var(--accent); }
+.header-spacer { flex: 1; }
+.header-info { font-size: .8rem; color: #9ca3af; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--radius); border: none; font-size: .84rem; font-weight: 600; cursor: pointer; transition: opacity .15s, transform .1s; white-space: nowrap; }
+.btn:hover { opacity: .88; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-outline { background: transparent; border: 1.5px solid rgba(255,255,255,.25); color: #d1d5db; }
+.btn-outline:hover { border-color: rgba(255,255,255,.5); color: #fff; opacity: 1; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--dark); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); opacity: 1; }
+.btn-sm { padding: 4px 10px; font-size: .78rem; }
+.btn-icon { padding: 6px; border-radius: 6px; }
+
+/* TOOLBAR */
+.toolbar { background: #fff; border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 380px; }
+.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: .4; pointer-events: none; }
+.search-wrap input { width: 100%; padding: 7px 10px 7px 34px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: .88rem; outline: none; background: var(--light); }
+.search-wrap input:focus { border-color: var(--accent); background: #fff; }
+.filter-select { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: .84rem; background: var(--light); outline: none; cursor: pointer; }
+.filter-select:focus { border-color: var(--accent); }
+.toolbar-spacer { flex: 1; }
+
+/* EMPTY / LOAD STATE */
+.load-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 80px 20px; color: #6b7280; }
+.load-state svg { opacity: .25; }
+.load-state h2 { font-size: 1.1rem; font-weight: 600; color: var(--dark); }
+.load-state p { font-size: .9rem; }
+
+/* TABLE */
+.table-wrap { padding: 20px 24px; }
+.table-count { font-size: .83rem; color: #6b7280; margin-bottom: 12px; }
+table { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+thead { background: var(--dark); color: #e5e7eb; }
+thead th { padding: 10px 14px; text-align: left; font-size: .78rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #f0f0ff; }
+td { padding: 9px 14px; font-size: .84rem; vertical-align: middle; }
+.td-name { font-weight: 600; max-width: 220px; word-break: break-word; }
+.td-cats { max-width: 300px; }
+.td-imgs { text-align: center; color: #6b7280; font-weight: 600; }
+.td-actions { white-space: nowrap; text-align: right; }
+.tag { display: inline-block; font-size: .7rem; padding: 2px 8px; border-radius: 99px; background: #ede9fe; color: var(--accent); font-weight: 500; margin: 2px 2px 2px 0; }
+.tag-other { background: #f3f4f6; color: #6b7280; }
+
+/* PAGINATION */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 20px 24px 36px; }
+.page-btn { min-width: 34px; height: 34px; border: 1.5px solid var(--border); background: #fff; color: var(--dark); border-radius: 6px; cursor: pointer; font-size: .84rem; font-weight: 500; padding: 0 8px; transition: all .15s; display: flex; align-items: center; justify-content: center; }
+.page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.page-btn:disabled { opacity: .35; cursor: default; }
+
+/* MODAL OVERLAY */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.overlay.open { display: flex; }
+
+/* MODAL */
+.modal { background: #fff; border-radius: 12px; width: 100%; max-width: 560px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.35); animation: fadeUp .18s ease; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+.modal-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.modal-title { font-size: 1rem; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #9ca3af; line-height: 1; padding: 0 4px; }
+.modal-close:hover { color: var(--dark); }
+.modal-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+
+/* FORM */
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: .82rem; font-weight: 600; margin-bottom: 6px; color: #374151; }
+.field input[type="text"], .field textarea { width: 100%; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: .88rem; outline: none; font-family: inherit; }
+.field input[type="text"]:focus, .field textarea:focus { border-color: var(--accent); }
+.field textarea { resize: vertical; min-height: 80px; }
+.field-hint { font-size: .75rem; color: #9ca3af; margin-top: 4px; }
+
+/* CATEGORIES GRID */
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-height: 280px; overflow-y: auto; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px; }
+.cat-check { display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 6px; border-radius: 4px; transition: background .12s; }
+.cat-check:hover { background: #f3f4f6; }
+.cat-check input { cursor: pointer; accent-color: var(--accent); width: 14px; height: 14px; flex-shrink: 0; }
+.cat-check span { font-size: .8rem; }
+.cat-actions { display: flex; gap: 8px; margin-bottom: 8px; }
+
+/* IMAGE LIST */
+.img-list { border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.img-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-bottom: 1px solid var(--border); font-size: .82rem; }
+.img-item:last-child { border-bottom: none; }
+.img-thumb { width: 36px; height: 36px; object-fit: contain; border-radius: 4px; background: var(--light); flex-shrink: 0; border: 1px solid var(--border); }
+.img-path { flex: 1; color: #374151; word-break: break-all; font-family: monospace; font-size: .75rem; }
+.img-move { display: flex; flex-direction: column; gap: 2px; }
+.img-move button { background: none; border: 1px solid var(--border); border-radius: 3px; cursor: pointer; font-size: .65rem; padding: 1px 4px; color: #6b7280; }
+.img-move button:hover { border-color: var(--accent); color: var(--accent); }
+.img-remove { background: none; border: none; cursor: pointer; color: #ef9999; font-size: 1rem; padding: 2px 4px; line-height: 1; border-radius: 4px; }
+.img-remove:hover { color: var(--danger); background: #fef2f2; }
+.img-add { display: flex; gap: 8px; margin-top: 10px; }
+.img-add input { flex: 1; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: .82rem; outline: none; font-family: monospace; }
+.img-add input:focus { border-color: var(--accent); }
+
+/* CONFIRM MODAL */
+.confirm-modal { max-width: 380px; }
+.confirm-msg { font-size: .9rem; color: #374151; line-height: 1.5; }
+.confirm-name { font-weight: 700; color: var(--dark); }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; z-index: 999; background: var(--dark); color: #fff; padding: 10px 18px; border-radius: var(--radius); font-size: .88rem; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,.3); animation: toastIn .2s ease; }
+.toast.success { background: var(--success); }
+.toast.danger  { background: var(--danger); }
+@keyframes toastIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+@media (max-width: 600px) {
+  .toolbar { padding: 10px 12px; }
+  .table-wrap { padding: 12px; }
+  .cat-grid { grid-template-columns: repeat(2, 1fr); }
+  thead th:nth-child(2), td:nth-child(2) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">3D <span>Cubik</span> — Admin</div>
+  <div class="header-spacer"></div>
+  <span class="header-info" id="headerInfo">Nessun file caricato</span>
+  <label class="btn btn-outline" style="cursor:pointer">
+    📂 Carica JSON
+    <input type="file" accept=".json" id="fileInput" style="display:none">
+  </label>
+  <button class="btn btn-success" id="btnExport" disabled>⬇ Esporta JSON</button>
+</div>
+
+<div id="loadState" class="load-state">
+  <svg width="64" height="64" fill="none" stroke="#9ca3af" stroke-width="1.5" viewBox="0 0 24 24">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline points="14,2 14,8 20,8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/>
+    <line x1="16" y1="17" x2="8" y2="17"/>
+    <polyline points="10,9 9,9 8,9"/>
+  </svg>
+  <h2>Nessun file caricato</h2>
+  <p>Clicca "Carica JSON" per aprire products.json</p>
+</div>
+
+<div id="app" style="display:none">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Cerca prodotto..." autocomplete="off">
+    </div>
+    <select class="filter-select" id="catFilter">
+      <option value="">Tutte le categorie</option>
+    </select>
+    <div class="toolbar-spacer"></div>
+    <button class="btn btn-primary" id="btnAdd">+ Nuovo prodotto</button>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-count" id="tableCount"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Categorie</th>
+          <th style="text-align:center">Img</th>
+          <th style="text-align:right">Azioni</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="editTitle">Modifica prodotto</span>
+      <button class="modal-close" id="editClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Nome prodotto</label>
+        <input type="text" id="editName" placeholder="es. Aereo">
+        <div class="field-hint">Usa underscore al posto degli spazi (es. Hello_Kitty)</div>
+      </div>
+
+      <div class="field">
+        <label>Categorie</label>
+        <div class="cat-actions">
+          <button class="btn btn-ghost btn-sm" id="btnAutoClassify">✨ Auto-classifica dal nome</button>
+          <button class="btn btn-ghost btn-sm" id="btnClearCats">Deseleziona tutto</button>
+        </div>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+
+      <div class="field">
+        <label>Immagini <span style="font-weight:400;color:#9ca3af">(trascina per riordinare)</span></label>
+        <div class="img-list" id="imgList"></div>
+        <div class="img-add">
+          <input type="text" id="imgAddInput" placeholder="imgs/webp/nome_file.webp">
+          <button class="btn btn-ghost btn-sm" id="btnAddImg">+ Aggiungi</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="editCancel">Annulla</button>
+      <button class="btn btn-primary" id="editSave">Salva modifiche</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal confirm-modal">
+    <div class="modal-header">
+      <span class="modal-title">Elimina prodotto</span>
+      <button class="modal-close" id="confirmClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="confirm-msg">Eliminare il prodotto <span class="confirm-name" id="confirmName"></span>?<br>Questa azione non può essere annullata.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="confirmCancel">Annulla</button>
+      <button class="btn btn-danger" id="confirmOk">Elimina</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALL_CATEGORIES = ["Alfabeto","Piante","Animali","Viaggi","Timbri","Mare","Sacramenti","Natale","Bambini","Barbie","Supereroi","Disney","Bing","Sport","Case","Cibo","Giocattoli","Cocomelon","Matrimonio","Pasqua","Cornici","Dinosauri","Fiocchi","Frozen","Halloween","Harry Potter","Hello Kitty","Macchine","Laurea","Festa della mamma","Masha e orso","Festa dei nonni","Numeri","Oceania","Orsetti","Peppa Pig","Musica","PJmask","Cinema","Re Leone","Trucchi","Sonic","Stitch","Stray kids","Super Mario","Texture","Topolino","Topper","Unicorni","Vestiti","Altro"];
+
+// Keyword map per auto-classify
+const KEYWORD_MAP = {
+  "alfabeto":["Alfabeto"],"lettera":["Alfabeto"],"piante":["Piante"],"fiore":["Piante"],"albero":["Piante"],"fungo":["Piante"],"foglia":["Piante"],"rosa":["Piante"],"animale":["Animali"],"cane":["Animali"],"gatto":["Animali"],"coniglio":["Animali"],"elefante":["Animali"],"tigre":["Animali"],"panda":["Animali"],"orso":["Orsetti"],"orsetto":["Orsetti"],"orsetti":["Orsetti"],"teddy":["Orsetti"],"aereo":["Viaggi"],"treno":["Viaggi"],"nave":["Viaggi"],"valigia":["Viaggi"],"mongolfiera":["Viaggi"],"barca":["Viaggi","Mare"],"macchina":["Macchine"],"auto":["Macchine"],"ferrari":["Macchine"],"camion":["Macchine"],"moto":["Macchine","Viaggi"],"bici":["Macchine","Viaggi"],"timbro":["Timbri"],"timbri":["Timbri"],"mare":["Mare"],"pesce":["Mare","Animali"],"sirena":["Mare"],"conchiglia":["Mare"],"granchio":["Mare"],"polpo":["Mare"],"delfino":["Animali","Mare"],"battesimo":["Sacramenti"],"comunione":["Sacramenti"],"cresima":["Sacramenti"],"croce":["Sacramenti"],"natale":["Natale"],"babbo":["Natale"],"renna":["Natale"],"elfo":["Natale"],"grinch":["Natale"],"bambino":["Bambini"],"baby":["Bambini"],"neonato":["Bambini"],"bimbo":["Bambini"],"barbie":["Barbie"],"batman":["Supereroi"],"spiderman":["Supereroi"],"superman":["Supereroi"],"avengers":["Supereroi"],"hulk":["Supereroi"],"disney":["Disney"],"topolino":["Topolino","Disney"],"mickey":["Topolino","Disney"],"minnie":["Topolino","Disney"],"paperino":["Disney"],"frozen":["Frozen"],"elsa":["Frozen"],"olaf":["Frozen"],"bing":["Bing"],"calcio":["Sport"],"basket":["Sport"],"tennis":["Sport"],"pallone":["Sport"],"danza":["Sport"],"casa":["Case"],"casetta":["Case"],"castello":["Case"],"pizza":["Cibo"],"torta":["Cibo"],"gelato":["Cibo"],"fragola":["Cibo"],"cupcake":["Cibo"],"giocattolo":["Giocattoli"],"pupazzo":["Giocattoli"],"bambola":["Giocattoli"],"cocomelon":["Cocomelon"],"matrimonio":["Matrimonio"],"sposi":["Matrimonio"],"sposa":["Matrimonio"],"cuore":["Matrimonio"],"pasqua":["Pasqua"],"uovo":["Pasqua"],"cornice":["Cornici"],"frame":["Cornici"],"dinosauro":["Dinosauri"],"dino":["Dinosauri"],"t_rex":["Dinosauri"],"fiocco":["Fiocchi"],"nastro":["Fiocchi"],"halloween":["Halloween"],"zucca":["Halloween"],"fantasma":["Halloween"],"strega":["Halloween"],"harry_potter":["Harry Potter"],"hogwarts":["Harry Potter"],"hello_kitty":["Hello Kitty"],"kitty":["Hello Kitty"],"laurea":["Laurea"],"diploma":["Laurea"],"libro":["Laurea"],"mamma":["Festa della mamma"],"madre":["Festa della mamma"],"masha":["Masha e orso"],"nonno":["Festa dei nonni"],"nonna":["Festa dei nonni"],"numero":["Numeri"],"oceania":["Oceania","Disney"],"moana":["Oceania","Disney"],"peppa":["Peppa Pig"],"musica":["Musica"],"chitarra":["Musica"],"microfono":["Musica"],"pjmask":["PJmask"],"pigiamini":["PJmask"],"cinema":["Cinema"],"ciak":["Cinema"],"re_leone":["Re Leone","Disney"],"simba":["Re Leone","Disney"],"trucco":["Trucchi"],"makeup":["Trucchi"],"rossetto":["Trucchi"],"sonic":["Sonic"],"stitch":["Stitch","Disney"],"stray_kids":["Stray kids"],"mario":["Super Mario"],"luigi":["Super Mario"],"bowser":["Super Mario"],"texture":["Texture"],"pattern":["Texture"],"unicorno":["Unicorni"],"unicorn":["Unicorni"],"vestito":["Vestiti"],"abito":["Vestiti"],"gonna":["Vestiti"],"winnie":["Disney","Orsetti"],"pooh":["Disney","Orsetti"],"nemo":["Disney"],"buzz":["Disney"],"woody":["Disney"],"encanto":["Disney"],"principesse":["Disney"],"topper":["Topper"]
+};
+const SORTED_KW = Object.keys(KEYWORD_MAP).sort((a,b) => b.length - a.length);
+
+function autoClassify(name) {
+  const stem = name.toLowerCase().replace(/ /g,"_");
+  const cats = new Set();
+  for (const kw of SORTED_KW) { if (stem.includes(kw)) KEYWORD_MAP[kw].forEach(c => cats.add(c)); }
+  return cats.size ? [...cats].sort() : ["Altro"];
+}
+
+// ===== STATE =====
+let PRODUCTS = [];
+let state = { search: "", cat: "", page: 1 };
+const PER_PAGE = 50;
+let editIdx = -1;   // -1 = new product
+let editImgs = [];
+let deleteIdx = -1;
+let loadedFileName = "products.json";
+let _st, _toastTimer;
+
+// ===== LOAD JSON =====
+document.getElementById("fileInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      PRODUCTS = JSON.parse(ev.target.result);
+      if (!Array.isArray(PRODUCTS)) throw new Error("Non è un array");
+      // Support both old keys (name/imgs/categories) and new compact keys (n/i/c)
+      PRODUCTS = PRODUCTS.map(p => ({
+        n: p.n ?? p.name ?? "",
+        i: p.i ?? p.imgs ?? [],
+        c: p.c ?? p.categories ?? [],
+      }));
+      loadedFileName = file.name;
+      // Reset search/filter state for new file
+      clearTimeout(_st);
+      state = { search: "", cat: "", page: 1 };
+      document.getElementById("searchInput").value = "";
+      document.getElementById("catFilter").value = "";
+      document.getElementById("loadState").style.display = "none";
+      document.getElementById("app").style.display = "";
+      document.getElementById("btnExport").disabled = false;
+      updateHeaderInfo();
+      populateCatFilter();
+      render();
+      toast(`✓ Caricati ${PRODUCTS.length} prodotti`, "success");
+    } catch(err) {
+      toast("Errore nel parsing JSON: " + err.message, "danger");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+function updateHeaderInfo() {
+  document.getElementById("headerInfo").textContent = `${PRODUCTS.length} prodotti — ${loadedFileName}`;
+}
+
+// ===== EXPORT =====
+document.getElementById("btnExport").addEventListener("click", () => {
+  const json = JSON.stringify(PRODUCTS, null, 0);
+  const blob = new Blob([json], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "products.json";
+  a.click(); URL.revokeObjectURL(url);
+  toast("✓ products.json esportato", "success");
+});
+
+// ===== FILTER & RENDER =====
+function filtered() {
+  const q = state.search.trim().toLowerCase();
+  return PRODUCTS.filter(p => {
+    const nameOk = !q || p.n.toLowerCase().includes(q);
+    const catOk = !state.cat || p.c.includes(state.cat);
+    return nameOk && catOk;
+  });
+}
+
+function render() {
+  const items = filtered();
+  const total = items.length;
+  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  if (state.page > totalPages) state.page = totalPages;
+  const start = (state.page - 1) * PER_PAGE;
+  const page = items.slice(start, start + PER_PAGE);
+
+  document.getElementById("tableCount").textContent =
+    `${total} prodott${total===1?"o":"i"}${state.search||state.cat ? " (filtrati)" : ""}`;
+
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = page.map((p, i) => {
+    const realIdx = PRODUCTS.indexOf(p);
+    const tags = p.c.map(c =>
+      `<span class="tag${c==="Altro"?" tag-other":""}">${escHtml(c)}</span>`
+    ).join("");
+    return `<tr>
+      <td class="td-name">${escHtml(p.n.replace(/_/g," "))}</td>
+      <td class="td-cats">${tags}</td>
+      <td class="td-imgs">${p.i.length}</td>
+      <td class="td-actions">
+        <button class="btn btn-ghost btn-sm btn-icon" title="Modifica" data-edit="${realIdx}">✏️</button>
+        <button class="btn btn-sm btn-icon" style="border:1.5px solid #fca5a5;color:#ef4444;" title="Elimina" data-del="${realIdx}">🗑</button>
+      </td>
+    </tr>`;
+  }).join("");
+
+  tbody.querySelectorAll("[data-edit]").forEach(btn =>
+    btn.addEventListener("click", () => openEdit(parseInt(btn.dataset.edit)))
+  );
+  tbody.querySelectorAll("[data-del]").forEach(btn =>
+    btn.addEventListener("click", () => openConfirmDelete(parseInt(btn.dataset.del)))
+  );
+
+  renderPagination(total);
+}
+
+function renderPagination(total) {
+  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  const pag = document.getElementById("pagination");
+  if (totalPages <= 1) { pag.innerHTML = ""; return; }
+  const cur = state.page;
+  const pages = [1];
+  if (cur - 2 > 2) pages.push("...");
+  for (let p = Math.max(2,cur-1); p <= Math.min(totalPages-1,cur+1); p++) pages.push(p);
+  if (cur + 2 < totalPages - 1) pages.push("...");
+  if (totalPages > 1) pages.push(totalPages);
+  pag.innerHTML =
+    `<button class="page-btn" ${cur===1?"disabled":""} id="pgPrev">← Prec</button>` +
+    pages.map(p => p==="..."
+      ? `<span style="padding:0 6px;color:#9ca3af">…</span>`
+      : `<button class="page-btn${p===cur?" active":""}" data-p="${p}">${p}</button>`
+    ).join("") +
+    `<button class="page-btn" ${cur===totalPages?"disabled":""} id="pgNext">Succ →</button>`;
+  pag.querySelector("#pgPrev")?.addEventListener("click", () => goPage(cur-1));
+  pag.querySelector("#pgNext")?.addEventListener("click", () => goPage(cur+1));
+  pag.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => goPage(parseInt(b.dataset.p))));
+}
+
+function goPage(p) { state.page = p; render(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+function populateCatFilter() {
+  const sel = document.getElementById("catFilter");
+  sel.innerHTML = `<option value="">Tutte le categorie</option>` +
+    ALL_CATEGORIES.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join("");
+}
+
+// ===== SEARCH & FILTER EVENTS =====
+document.getElementById("searchInput").addEventListener("input", e => {
+  clearTimeout(_st); _st = setTimeout(() => { state.search = e.target.value; state.page = 1; render(); }, 250);
+});
+document.getElementById("catFilter").addEventListener("change", e => {
+  state.cat = e.target.value; state.page = 1; render();
+});
+
+// ===== EDIT MODAL =====
+function openEdit(idx) {
+  editIdx = idx;
+  const p = idx === -1
+    ? { n: "", i: [], c: [] }
+    : PRODUCTS[idx];
+
+  document.getElementById("editTitle").textContent = idx === -1 ? "Nuovo prodotto" : "Modifica prodotto";
+  document.getElementById("editName").value = p.n;
+  editImgs = [...p.i];
+
+  buildCatGrid(p.c);
+  renderImgList();
+  document.getElementById("editOverlay").classList.add("open");
+  document.getElementById("editName").focus();
+}
+
+function buildCatGrid(selected) {
+  const grid = document.getElementById("catGrid");
+  grid.innerHTML = ALL_CATEGORIES.map(cat => {
+    const checked = selected.includes(cat) ? "checked" : "";
+    return `<label class="cat-check">
+      <input type="checkbox" value="${escHtml(cat)}" ${checked}>
+      <span>${escHtml(cat)}</span>
+    </label>`;
+  }).join("");
+}
+
+function getSelectedCats() {
+  return [...document.getElementById("catGrid").querySelectorAll("input:checked")]
+    .map(el => el.value);
+}
+
+function renderImgList() {
+  const list = document.getElementById("imgList");
+  if (editImgs.length === 0) {
+    list.innerHTML = `<div style="padding:12px;text-align:center;color:#9ca3af;font-size:.82rem">Nessuna immagine</div>`;
+    return;
+  }
+  list.innerHTML = editImgs.map((src, i) => `
+    <div class="img-item" data-i="${i}">
+      <img class="img-thumb" src="${escHtml(src.replace("imgs/webp/","imgs/thumb/"))}" onerror="this.style.display='none'">
+      <span class="img-path">${escHtml(src)}</span>
+      <div class="img-move">
+        <button data-up="${i}" title="Su">▲</button>
+        <button data-dn="${i}" title="Giù">▼</button>
+      </div>
+      <button class="img-remove" data-rm="${i}" title="Rimuovi">×</button>
+    </div>`).join("");
+
+  list.querySelectorAll("[data-up]").forEach(b => b.addEventListener("click", () => {
+    const i = parseInt(b.dataset.up);
+    if (i > 0) { [editImgs[i-1],editImgs[i]]=[editImgs[i],editImgs[i-1]]; renderImgList(); }
+  }));
+  list.querySelectorAll("[data-dn]").forEach(b => b.addEventListener("click", () => {
+    const i = parseInt(b.dataset.dn);
+    if (i < editImgs.length-1) { [editImgs[i],editImgs[i+1]]=[editImgs[i+1],editImgs[i]]; renderImgList(); }
+  }));
+  list.querySelectorAll("[data-rm]").forEach(b => b.addEventListener("click", () => {
+    editImgs.splice(parseInt(b.dataset.rm), 1); renderImgList();
+  }));
+}
+
+document.getElementById("btnAddImg").addEventListener("click", () => {
+  const inp = document.getElementById("imgAddInput");
+  const val = inp.value.trim();
+  if (!val) return;
+  if (!val.startsWith("imgs/")) {
+    editImgs.push("imgs/webp/" + val);
+  } else {
+    editImgs.push(val);
+  }
+  inp.value = "";
+  renderImgList();
+});
+document.getElementById("imgAddInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") document.getElementById("btnAddImg").click();
+});
+
+document.getElementById("btnAutoClassify").addEventListener("click", () => {
+  const name = document.getElementById("editName").value.trim();
+  if (!name) { toast("Inserisci prima il nome del prodotto", "danger"); return; }
+  const cats = autoClassify(name);
+  buildCatGrid(cats);
+  toast("✓ Categorie aggiornate dal nome", "success");
+});
+
+document.getElementById("btnClearCats").addEventListener("click", () => {
+  document.getElementById("catGrid").querySelectorAll("input").forEach(el => el.checked = false);
+});
+
+function saveEdit() {
+  const name = document.getElementById("editName").value.trim();
+  if (!name) { toast("Il nome non può essere vuoto", "danger"); return; }
+  const cats = getSelectedCats();
+  if (cats.length === 0) { toast("Seleziona almeno una categoria", "danger"); return; }
+  if (editImgs.length === 0) { toast("Aggiungi almeno un'immagine", "danger"); return; }
+
+  const product = { n: name, i: [...editImgs], c: cats };
+  if (editIdx === -1) {
+    PRODUCTS.push(product);
+    toast("✓ Prodotto aggiunto", "success");
+  } else {
+    PRODUCTS[editIdx] = product;
+    toast("✓ Prodotto aggiornato", "success");
+  }
+  closeEdit();
+  render();
+  updateHeaderInfo();
+}
+
+function closeEdit() {
+  document.getElementById("editOverlay").classList.remove("open");
+  editIdx = -1; editImgs = [];
+}
+
+document.getElementById("editSave").addEventListener("click", saveEdit);
+document.getElementById("editCancel").addEventListener("click", closeEdit);
+document.getElementById("editClose").addEventListener("click", closeEdit);
+document.getElementById("editOverlay").addEventListener("click", e => { if (e.target===e.currentTarget) closeEdit(); });
+
+// ===== ADD NEW =====
+document.getElementById("btnAdd").addEventListener("click", () => openEdit(-1));
+
+// ===== DELETE =====
+function openConfirmDelete(idx) {
+  deleteIdx = idx;
+  document.getElementById("confirmName").textContent = `"${PRODUCTS[idx].n.replace(/_/g," ")}"`;
+  document.getElementById("confirmOverlay").classList.add("open");
+}
+function closeConfirm() {
+  document.getElementById("confirmOverlay").classList.remove("open");
+  deleteIdx = -1;
+}
+document.getElementById("confirmOk").addEventListener("click", () => {
+  if (deleteIdx < 0) return;
+  const name = PRODUCTS[deleteIdx].n;
+  PRODUCTS.splice(deleteIdx, 1);
+  closeConfirm();
+  render();
+  updateHeaderInfo();
+  toast(`✓ "${name.replace(/_/g," ")}" eliminato`);
+});
+document.getElementById("confirmCancel").addEventListener("click", closeConfirm);
+document.getElementById("confirmClose").addEventListener("click", closeConfirm);
+document.getElementById("confirmOverlay").addEventListener("click", e => { if(e.target===e.currentTarget) closeConfirm(); });
+
+// ===== KEYBOARD =====
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { closeEdit(); closeConfirm(); }
+  if (e.key === "Enter" && document.getElementById("editOverlay").classList.contains("open")) {
+    const ae = document.activeElement;
+    // Only save on Enter when focused on the name text field
+    if (ae && ae.id === "editName") saveEdit();
+  }
+});
+
+// ===== UTILS =====
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function toast(msg, type="") {
+  const existing = document.querySelector(".toast");
+  if (existing) existing.remove();
+  clearTimeout(_toastTimer);
+  const el = document.createElement("div");
+  el.className = "toast" + (type ? " " + type : "");
+  el.textContent = msg;
+  document.body.appendChild(el);
+  _toastTimer = setTimeout(() => el.remove(), 2800);
+}
+</script>
+</body>
+</html>

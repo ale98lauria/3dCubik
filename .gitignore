@@ -1,0 +1,5 @@
+# PromptOps context snapshot
+.promptops/
+
+# PromptOps session assets
+.promptops-assets/
