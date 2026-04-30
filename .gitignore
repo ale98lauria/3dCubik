@@ -1,5 +1,11 @@
-# PromptOps context snapshot
+# PromptOps
 .promptops/
-
-# PromptOps session assets
 .promptops-assets/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Claude Code
+.claude/
