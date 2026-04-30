@@ -69,11 +69,6 @@ I file con lo stesso prefisso vengono raggruppati in un unico prodotto con caros
    ```bash
    python3 build_catalog.py
    ```
-   Lo script in modalità predefinita:
-   - Conserva **tutte** le modifiche fatte tramite il pannello admin (categorie, nomi)
-   - Aggiunge i nuovi prodotti trovati su disco con auto-classificazione
-   - Genera le anteprime solo per le immagini nuove (le esistenti vengono saltate)
-   - Aggiorna `products.json` e `index.html`
 
 3. **Push** i file aggiornati su GitHub (o rideploy su Netlify)
 
@@ -121,7 +116,7 @@ Clicca l'icona 🗑 → conferma nella finestra di dialogo.
 3. Sostituisci il file nella cartella del progetto
 4. Push su GitHub / rideploy su Netlify
 
-> **Importante:** le modifiche fatte nel pannello admin vengono salvate **solo** nel JSON esportato. Dopo l'export, se esegui `python3 build_catalog.py` le modifiche vengono **preservate** automaticamente — lo script legge il JSON esistente e non sovrascrive i prodotti già presenti.
+> **Importante:** dopo l'export, le modifiche vengono **preservate** automaticamente alla prossima rigenerazione.
 
 ---
 
@@ -133,12 +128,7 @@ Clicca l'icona 🗑 → conferma nella finestra di dialogo.
 python3 build_catalog.py
 ```
 
-Cosa fa:
-- Legge `products.json` esistente
-- **Preserva** nome, categorie e ordine immagini dei prodotti già presenti
-- Aggiunge nuovi prodotti trovati in `imgs/webp/` con auto-classificazione
-- Genera anteprime solo per le immagini che non le hanno ancora
-- Rigenera `index.html`
+Preserva le modifiche fatte dall'admin, aggiunge i nuovi prodotti trovati su disco e genera le anteprime mancanti.
 
 ### Modalità reset — **attenzione, perde le modifiche admin**
 
@@ -146,16 +136,7 @@ Cosa fa:
 python3 build_catalog.py --reset
 ```
 
-Cosa fa:
-- Ignora `products.json` esistente
-- Ricostruisce tutto da zero leggendo solo i file su disco
-- Riclassifica automaticamente tutti i prodotti
-
-Usa `--reset` solo se vuoi ripartire da capo (es. dopo una pulizia massiva dei file).
-
-### Solo anteprime
-
-Per rigenerare le anteprime senza toccare JSON o HTML, basta eseguire lo script e interrompere dopo la fase thumbnail, oppure aggiungere nuovi file e lanciare il comando normale — le anteprime esistenti vengono saltate automaticamente.
+Ricostruisce tutto da zero. Usa solo se vuoi ripartire da capo.
 
 ---
 
