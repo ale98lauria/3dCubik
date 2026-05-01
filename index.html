@@ -39,7 +39,30 @@ body {
   flex-direction: column;
   z-index: 100;
   overflow: hidden;
+  transition: transform .25s ease;
 }
+.sidebar.collapsed { transform: translateX(-100%); }
+.btn-sidebar-toggle {
+  position: fixed;
+  top: 14px;
+  left: calc(var(--sidebar-w) - 14px);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--white);
+  color: #fff;
+  cursor: pointer;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
+  transition: left .25s ease, transform .25s ease;
+}
+.btn-sidebar-toggle.collapsed { left: 14px; transform: rotate(180deg); }
+.btn-sidebar-toggle svg { width: 14px; height: 14px; }
 .sidebar-logo {
   padding: 18px 16px 14px;
   font-size: 1.2rem;
@@ -65,8 +88,27 @@ body {
   font-size: .82rem;
   outline: none;
 }
+.sidebar-search { position: relative; }
+.sidebar-search input { padding-right: 28px; }
 .sidebar-search input::placeholder { color: #9ca3af; }
 .sidebar-search input:focus { border-color: var(--accent); }
+.btn-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: none;
+  border-radius: 4px;
+}
+.btn-clear:hover { color: var(--white); background: rgba(255,255,255,.08); }
+.btn-clear.visible { display: block; }
 .sidebar-list {
   flex: 1;
   overflow-y: auto;
@@ -104,6 +146,21 @@ body {
   text-align: center;
 }
 .cat-item.active .badge { background: rgba(255,255,255,.25); }
+.cat-item.parent { font-weight: 600; color: #fff; }
+.cat-item.parent .arrow {
+  display: inline-block;
+  width: 10px;
+  margin-right: 6px;
+  padding: 4px;
+  margin-left: -4px;
+  transition: transform .15s;
+  font-size: .65rem;
+  opacity: .7;
+  cursor: pointer;
+}
+.cat-item.parent .arrow:hover { opacity: 1; }
+.cat-item.parent.expanded .arrow { transform: rotate(90deg); }
+.cat-item.child { padding-left: 32px; font-size: .8rem; }
 
 /* ===== MAIN ===== */
 .main {
@@ -111,7 +168,10 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: margin-left .25s ease;
 }
+.main.expanded { margin-left: 0; }
+.main.expanded .topbar { padding-left: 56px; }
 
 /* ===== TOPBAR ===== */
 .topbar {
@@ -127,17 +187,19 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 .topbar-search {
+  position: relative;
   display: flex;
   align-items: center;
   background: rgba(255,255,255,.09);
   border: 1px solid rgba(255,255,255,.15);
   border-radius: 8px;
-  padding: 0 12px;
+  padding: 0 4px 0 12px;
   gap: 8px;
   flex: 1;
   max-width: 380px;
 }
 .topbar-search svg { opacity: .5; flex-shrink: 0; }
+.topbar-search .btn-clear { position: static; transform: none; }
 .topbar-search input {
   background: none;
   border: none;
@@ -484,6 +546,16 @@ body {
   color: var(--accent);
   font-weight: 500;
 }
+.modal-info {
+  font-size: .85rem;
+  color: #6b7280;
+  font-style: italic;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+}
 .btn-close {
   width: 100%;
   padding: 10px;
@@ -505,6 +577,7 @@ body {
   .pills-bar { display: flex; }
   .topbar { padding: 0 12px; gap: 8px; }
   .content { padding: 12px; }
+  .btn-sidebar-toggle { display: none; }
 }
 </style>
 </head>
@@ -515,9 +588,13 @@ body {
   <div class="sidebar-logo">3D <span>Cubik</span></div>
   <div class="sidebar-search">
     <input type="text" id="sidebarCatSearch" placeholder="Cerca categoria..." autocomplete="off"/>
+    <button type="button" class="btn-clear" id="btnClearCatSearch" aria-label="Cancella">×</button>
   </div>
   <div class="sidebar-list" id="sidebarList"></div>
 </aside>
+<button type="button" class="btn-sidebar-toggle" id="btnSidebarToggle" aria-label="Mostra/nascondi categorie">
+  <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
 
 <!-- MAIN -->
 <div class="main">
@@ -527,6 +604,7 @@ body {
     <div class="topbar-search">
       <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" id="searchInput" placeholder="Cerca prodotto..." autocomplete="off"/>
+      <button type="button" class="btn-clear" id="btnClearSearch" aria-label="Cancella ricerca">×</button>
     </div>
     <div class="breadcrumb" id="breadcrumb"><strong>Tutti</strong> i prodotti</div>
     <button class="btn-reset" id="btnReset">Reset filtri</button>
@@ -555,13 +633,14 @@ body {
     <div class="modal-body">
       <div class="modal-name" id="modalName"></div>
       <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-info" id="modalInfo">Disponibile in diverse misure</div>
       <button class="btn-close" id="btnClose">Chiudi</button>
     </div>
   </div>
 </div>
 
 <script>
-const ALL_CATEGORIES = ["Alfabeto","Piante","Animali","Viaggi","Timbri","Mare","Sacramenti","Natale","Bambini","Barbie","Supereroi","Disney","Bing","Sport","Case","Cibo","Giocattoli","Cocomelon","Matrimonio","Pasqua","Cornici","Dinosauri","Fiocchi","Frozen","Halloween","Harry Potter","Hello Kitty","Macchine","Laurea","Festa della mamma","Masha e orso","Festa dei nonni","Numeri","Oceania","Orsetti","Peppa Pig","Musica","PJmask","Cinema","Re Leone","Trucchi","Sonic","Stitch","Stray kids","Super Mario","Texture","Topolino","Topper","Unicorni","Vestiti","Altro"];
+const ALL_CATEGORIES = ["Alfabeto","Altro","Animali","Bambini","Barbie","Battesimo","Bella e Bestia","Bing","Carica 101","Case","Cibo","Cinema","Cocomelon","Compleanno","Comunione","Cornici","Cresima","Dinosauri","Disney","Festa dei Nonni","Festa della Donna","Festa della Mamma","Fiocchi","Fiori","Frozen","Giocattoli","Halloween","Harry Potter","Hello Kitty","Inside Out","Laurea","Lusso","Mare","Masha e Orso","Matrimonio","Musica","Natale","Numeri","Oceania","Orsetti","Pasqua","Peppa Pig","Piante","PJmask","Principesse","Re Leone","Sonic","Sport","Stitch","Stray Kids","Super Mario","Supereroi","Texture","Timbri","Topolino","Topper","Trucchi","Unicorni","Vestiti","Viaggi","Winnie The Pooh","Zootropolis"];
 const PER_PAGE = 48;
 let PRODUCTS = [];
 let state = { category: "Tutti", search: "", page: 1 };
@@ -586,6 +665,7 @@ async function loadData() {
     const r = await fetch("products.json");
     if (!r.ok) throw new Error("HTTP " + r.status);
     PRODUCTS = await r.json();
+    PRODUCTS.forEach((p, i) => { p.num = String(i).padStart(4, "0"); });
   } catch(e) {
     hideSkeleton();
     document.getElementById("loader").style.cssText = "display:flex;padding:40px 20px";
@@ -626,18 +706,68 @@ function catCount(cat) {
   return PRODUCTS.filter(p => p.c.includes(cat)).length;
 }
 
+const HIERARCHY = {
+  "Bambini": ["Barbie", "Bing", "Cocomelon", "Dinosauri", "Hello Kitty", "Masha e Orso", "Orsetti", "Peppa Pig", "PJmask", "Sonic", "Super Mario", "Supereroi", "Unicorni"],
+  "Disney": ["Bella e Bestia", "Carica 101", "Frozen", "Inside Out", "Oceania", "Principesse", "Re Leone", "Stitch", "Topolino", "Winnie The Pooh", "Zootropolis"]
+};
+const CHILD_TO_PARENT = {};
+for (const [p, cs] of Object.entries(HIERARCHY)) for (const c of cs) CHILD_TO_PARENT[c] = p;
+const expandedParents = new Set();
+
 function renderSidebar() {
   const q = document.getElementById("sidebarCatSearch").value.trim().toLowerCase();
   const list = document.getElementById("sidebarList");
-  const cats = ["Tutti", ...ALL_CATEGORIES].filter(c => !q || c.toLowerCase().includes(q));
-  list.innerHTML = cats.map(cat => {
-    const count = catCount(cat);
-    if (count === 0 && cat !== "Tutti") return "";
-    const active = state.category === cat ? " active" : "";
-    return `<div class="cat-item${active}" data-cat="${escHtml(cat)}"><span>${escHtml(cat)}</span><span class="badge">${count}</span></div>`;
-  }).join("");
+  const matchQ = c => !q || c.toLowerCase().includes(q);
+  const items = [];
+
+  if (matchQ("Tutti")) {
+    const a = state.category === "Tutti" ? " active" : "";
+    items.push(`<div class="cat-item${a}" data-cat="Tutti"><span>Tutti</span><span class="badge">${PRODUCTS.length}</span></div>`);
+  }
+
+  for (const cat of ALL_CATEGORIES) {
+    if (CHILD_TO_PARENT[cat]) continue;
+    if (HIERARCHY[cat]) {
+      const children = HIERARCHY[cat].filter(c => ALL_CATEGORIES.includes(c) && catCount(c) > 0);
+      const parentMatchesQ = matchQ(cat);
+      const childrenMatchingQ = children.filter(matchQ);
+      const showParent = q ? (parentMatchesQ || childrenMatchingQ.length > 0) : children.length > 0;
+      if (!showParent) continue;
+      const expanded = q ? true : expandedParents.has(cat);
+      const a = state.category === cat ? " active" : "";
+      items.push(`<div class="cat-item parent${expanded ? ' expanded' : ''}${a}" data-cat="${escHtml(cat)}" data-parent="${escHtml(cat)}"><span><span class="arrow" data-toggle="1">▶</span>${escHtml(cat)}</span><span class="badge">${catCount(cat)}</span></div>`);
+      if (expanded) {
+        const visible = q && !parentMatchesQ ? childrenMatchingQ : children;
+        for (const child of visible) {
+          const a = state.category === child ? " active" : "";
+          items.push(`<div class="cat-item child${a}" data-cat="${escHtml(child)}"><span>${escHtml(child)}</span><span class="badge">${catCount(child)}</span></div>`);
+        }
+      }
+    } else {
+      if (!matchQ(cat) || catCount(cat) === 0) continue;
+      const a = state.category === cat ? " active" : "";
+      items.push(`<div class="cat-item${a}" data-cat="${escHtml(cat)}"><span>${escHtml(cat)}</span><span class="badge">${catCount(cat)}</span></div>`);
+    }
+  }
+
+  list.innerHTML = items.join("");
+  list.querySelectorAll(".cat-item .arrow[data-toggle]").forEach(el =>
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      const p = el.closest(".cat-item.parent").dataset.parent;
+      if (expandedParents.has(p)) expandedParents.delete(p); else expandedParents.add(p);
+      renderSidebar();
+    })
+  );
   list.querySelectorAll(".cat-item").forEach(el =>
-    el.addEventListener("click", () => selectCategory(el.dataset.cat))
+    el.addEventListener("click", () => {
+      const p = el.dataset.parent;
+      if (p) {
+        if (expandedParents.has(p)) expandedParents.delete(p);
+        else expandedParents.add(p);
+      }
+      selectCategory(el.dataset.cat);
+    })
   );
 }
 
@@ -699,7 +829,7 @@ function renderGrid() {
           ${multi?`<button class="carousel-btn prev">&#8249;</button><button class="carousel-btn next">&#8250;</button><div class="carousel-dots">${dots}</div>`:""}
         </div>
         <div class="card-body">
-          <div class="card-name">${escHtml(p.n.replace(/_/g," "))}</div>
+          <div class="card-name">${p.num}. ${escHtml(p.n.replace(/_/g," "))}</div>
           <div class="card-tags">${tags}</div>
         </div>
       </div>`;
@@ -770,7 +900,8 @@ let modalIdx = 0, modalImgs = [];
 function openModal(p) {
   modalImgs = p.i; modalIdx = 0;
   renderModalCarousel();
-  document.getElementById("modalName").textContent = p.n.replace(/_/g," ");
+  document.getElementById("modalName").textContent = p.num + ". " + p.n.replace(/_/g," ");
+  document.getElementById("modalInfo").textContent = p.d && p.d.trim() ? p.d : "Disponibile in diverse misure";
   document.getElementById("modalTags").innerHTML = p.c.map(c =>
     `<span class="modal-tag">${escHtml(c)}</span>`).join("");
   document.getElementById("modalOverlay").classList.add("open");
@@ -834,14 +965,31 @@ function escHtml(s) {
 }
 
 let _st;
+function setupClear(inputId, btnId, onClear) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  const sync = () => btn.classList.toggle("visible", input.value !== "");
+  input.addEventListener("input", sync);
+  btn.addEventListener("click", () => { input.value=""; sync(); onClear(); input.focus(); });
+  sync();
+}
 document.getElementById("searchInput").addEventListener("input", e => {
   clearTimeout(_st); _st = setTimeout(() => { state.search=e.target.value; state.page=1; render(); }, 300);
 });
 document.getElementById("sidebarCatSearch").addEventListener("input", renderSidebar);
+setupClear("searchInput", "btnClearSearch", () => { state.search=""; state.page=1; render(); });
+setupClear("sidebarCatSearch", "btnClearCatSearch", renderSidebar);
+document.getElementById("btnSidebarToggle").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.toggle("collapsed");
+  document.querySelector(".main").classList.toggle("expanded");
+  document.getElementById("btnSidebarToggle").classList.toggle("collapsed");
+});
 document.getElementById("btnReset").addEventListener("click", () => {
   state={category:"Tutti",search:"",page:1};
   document.getElementById("searchInput").value="";
   document.getElementById("sidebarCatSearch").value="";
+  document.getElementById("btnClearSearch").classList.remove("visible");
+  document.getElementById("btnClearCatSearch").classList.remove("visible");
   render();
 });
 document.getElementById("btnClose").addEventListener("click", closeModal);

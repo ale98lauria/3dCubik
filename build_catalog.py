@@ -3,9 +3,9 @@
 build_catalog.py — genera catalog.html da imgs/webp/*.webp
 """
 
-import os
 import re
 import json
+import shutil
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -13,6 +13,10 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 IMGS_DIR     = Path("imgs/webp")
 THUMB_DIR    = Path("imgs/thumb")
+ORIGINALS_DIR = Path("imgs/originals")
+WATERMARK_FILE = Path("imgs/watermark.png")
+WATERMARK_OPACITY = 0.20
+WATERMARK_SCALE = 0.45
 THUMB_SIZE   = (320, 320)
 THUMB_QUALITY = 80
 OUTPUT_HTML  = Path("index.html")
@@ -25,30 +29,34 @@ PER_PAGE = 48
 KEYWORD_MAP = {
     "alfabeto": ["Alfabeto"],
     "lettera": ["Alfabeto"],
+    # Alberi (assorbiti in Piante)
     "abete": ["Piante"],
-    "agrifoglio": ["Piante"],
     "albero": ["Piante"],
-    "fiore": ["Piante"],
-    "foglia": ["Piante"],
-    "cactus": ["Piante"],
-    "girasole": ["Piante"],
-    "orchidea": ["Piante"],
-    "rosa": ["Piante"],
-    "tulipano": ["Piante"],
-    "fungo": ["Piante"],
-    "bouquet": ["Piante"],
-    "margherita": ["Piante"],
     "palma": ["Piante"],
     "bonsai": ["Piante"],
-    "edera": ["Piante"],
-    "giglio": ["Piante"],
-    "lavanda": ["Piante"],
-    "mimosa": ["Piante"],
-    "pino": ["Piante"],
     "quercia": ["Piante"],
     "ulivo": ["Piante"],
-    "garofano": ["Piante"],
+    # Fiori
+    "fiore": ["Fiori"],
+    "girasole": ["Fiori"],
+    "orchidea": ["Fiori"],
+    "rosa": ["Fiori"],
+    "tulipano": ["Fiori"],
+    "bouquet": ["Fiori"],
+    "margherita": ["Fiori"],
+    "giglio": ["Fiori"],
+    "lavanda": ["Fiori"],
+    "mimosa": ["Fiori"],
+    "garofano": ["Fiori"],
+    # Piante (foglie e altro materiale vegetale)
+    "foglia": ["Piante"],
+    "agrifoglio": ["Piante"],
+    "edera": ["Piante"],
+    "fungo": ["Piante"],
+    "cactus": ["Piante"],
     "animale": ["Animali"],
+    "animali": ["Animali"],
+    "savana": ["Animali"],
     "anatroccolo": ["Animali"],
     "ape": ["Animali"],
     "aquila": ["Animali"],
@@ -113,8 +121,8 @@ KEYWORD_MAP = {
     "valigia": ["Viaggi"],
     "passaporto": ["Viaggi"],
     "barca": ["Viaggi", "Mare"],
-    "bicicletta": ["Viaggi", "Macchine"],
-    "bici": ["Viaggi", "Macchine"],
+    "bicicletta": ["Viaggi"],
+    "bici": ["Viaggi"],
     "timbro": ["Timbri"],
     "mare": ["Mare"],
     "oceano": ["Mare"],
@@ -132,9 +140,9 @@ KEYWORD_MAP = {
     "faro": ["Mare"],
     "sottomarino": ["Mare"],
     "pesce": ["Mare", "Animali"],
-    "battesimo": ["Sacramenti"],
-    "comunione": ["Sacramenti"],
-    "cresima": ["Sacramenti"],
+    "battesimo": ["Battesimo"],
+    "comunione": ["Comunione"],
+    "cresima": ["Cresima"],
     "natale": ["Natale"],
     "babbo": ["Natale"],
     "renna": ["Natale"],
@@ -166,6 +174,8 @@ KEYWORD_MAP = {
     "wolverine": ["Supereroi"],
     "groot": ["Supereroi"],
     "pantera_nera": ["Supereroi"],
+    "fumetto": ["Supereroi"],
+    "fumetti": ["Supereroi"],
     "disney": ["Disney"],
     "paperino": ["Disney"],
     "pluto": ["Disney"],
@@ -180,8 +190,8 @@ KEYWORD_MAP = {
     "bambi": ["Disney"],
     "dumbo": ["Disney"],
     "pinocchio": ["Disney"],
-    "winnie": ["Disney", "Orsetti"],
-    "pooh": ["Disney", "Orsetti"],
+    "winnie": ["Winnie The Pooh", "Disney"],
+    "pooh": ["Winnie The Pooh", "Disney"],
     "lilo": ["Disney", "Stitch"],
     "nemo": ["Disney"],
     "dory": ["Disney", "Mare"],
@@ -190,15 +200,28 @@ KEYWORD_MAP = {
     "toy_story": ["Disney"],
     "coco": ["Disney"],
     "encanto": ["Disney"],
-    "zootopia": ["Disney"],
     "alice": ["Disney"],
     "peter_pan": ["Disney"],
     "trilli": ["Disney"],
+    "trilly": ["Disney"],
     "aladdin": ["Disney"],
     "tarzan": ["Disney"],
     "aurora": ["Disney"],
     "gaston": ["Disney"],
     "jasmine": ["Disney"],
+    "bella_bestia": ["Disney", "Bella e Bestia"],
+    "bella_specchio": ["Disney", "Bella e Bestia"],
+    "belle_scomponibile": ["Disney", "Bella e Bestia"],
+    "bestia": ["Disney", "Bella e Bestia"],
+    "cappuccetto": ["Bambini"],
+    "inside_out": ["Disney", "Inside Out"],
+    "principesse": ["Disney", "Principesse"],
+    "carrozza": ["Disney", "Principesse"],
+    "aristogatti": ["Disney", "Animali"],
+    "carica_101": ["Disney", "Carica 101"],
+    "zootropolis": ["Disney", "Zootropolis", "Animali"],
+    "zootopia": ["Disney", "Zootropolis", "Animali"],
+    "dalmata": ["Disney", "Animali"],
     "bing": ["Bing"],
     "calcio": ["Sport"],
     "basket": ["Sport"],
@@ -220,14 +243,27 @@ KEYWORD_MAP = {
     "ginnastica": ["Sport"],
     "baseball": ["Sport"],
     "casa": ["Case"],
+    "case": ["Case"],
     "casetta": ["Case"],
     "villetta": ["Case"],
     "castello": ["Case"],
     "pizza": ["Cibo"],
+    "bottiglia": ["Cibo"],
+    "candy_cane": ["Natale", "Cibo"],
+    "biglietto": ["Cinema"],
+    "fiocchetto": ["Fiocchi"],
+    "cavalli": ["Animali"],
+    "osso": ["Animali"],
+    "neve": ["Natale"],
+    "tiktok": ["Musica"],
+    "mappamondo": ["Viaggi"],
+    "quadrato": ["Cornici"],
+    "cavalluccio_marino": ["Animali", "Mare"],
     "torta": ["Cibo"],
     "gelato": ["Cibo"],
     "dolce": ["Cibo"],
     "biscotto": ["Cibo"],
+    "bottiglia":["Cibo"],
     "cioccolato": ["Cibo"],
     "fragola": ["Cibo"],
     "anguria": ["Cibo"],
@@ -302,30 +338,32 @@ KEYWORD_MAP = {
     "quidditch": ["Harry Potter"],
     "hello_kitty": ["Hello Kitty"],
     "kitty": ["Hello Kitty"],
-    "macchina": ["Macchine"],
-    "automobile": ["Macchine", "Viaggi"],
-    "ferrari": ["Macchine"],
-    "lamborghini": ["Macchine"],
-    "monster_truck": ["Macchine"],
-    "trattore": ["Macchine"],
-    "camion": ["Macchine"],
-    "autobus": ["Macchine"],
-    "ambulanza": ["Macchine"],
-    "pompieri": ["Macchine"],
-    "polizia": ["Macchine"],
-    "ruspa": ["Macchine"],
-    "escavatore": ["Macchine"],
-    "scooter": ["Macchine", "Viaggi"],
-    "moto": ["Macchine", "Viaggi"],
+    "macchina": ["Viaggi"],
+    "automobile": ["Viaggi"],
+    "ferrari": ["Viaggi"],
+    "lamborghini": ["Viaggi"],
+    "monster_truck": ["Viaggi"],
+    "trattore": ["Viaggi"],
+    "camion": ["Viaggi"],
+    "autobus": ["Viaggi"],
+    "ambulanza": ["Viaggi"],
+    "pompieri": ["Viaggi"],
+    "polizia": ["Viaggi"],
+    "ruspa": ["Viaggi"],
+    "escavatore": ["Viaggi"],
+    "scooter": ["Viaggi"],
+    "moto": ["Viaggi"],
     "laurea": ["Laurea"],
     "diploma": ["Laurea"],
     "dottorato": ["Laurea"],
-    "mamma": ["Festa della mamma"],
-    "madre": ["Festa della mamma"],
-    "masha": ["Masha e orso"],
-    "nonno": ["Festa dei nonni"],
-    "nonna": ["Festa dei nonni"],
-    "nonni": ["Festa dei nonni"],
+    "mamma": ["Festa della Mamma"],
+    "madre": ["Festa della Mamma"],
+    "frida_khalo": ["Festa della Donna"],
+    "frida": ["Festa della Donna"],
+    "masha": ["Masha e Orso"],
+    "nonno": ["Festa dei Nonni"],
+    "nonna": ["Festa dei Nonni"],
+    "nonni": ["Festa dei Nonni"],
     "numero": ["Numeri"],
     "oceania": ["Oceania", "Disney"],
     "moana": ["Oceania", "Disney"],
@@ -368,8 +406,8 @@ KEYWORD_MAP = {
     "knuckles": ["Sonic"],
     "eggman": ["Sonic"],
     "stitch": ["Stitch", "Disney"],
-    "stray_kids": ["Stray kids"],
-    "straykids": ["Stray kids"],
+    "stray_kids": ["Stray Kids"],
+    "straykids": ["Stray Kids"],
     "mario": ["Super Mario"],
     "luigi": ["Super Mario"],
     "bowser": ["Super Mario"],
@@ -395,26 +433,20 @@ KEYWORD_MAP = {
     "tutina": ["Vestiti"],
     "pigiama": ["Vestiti"],
     # --- keywords aggiuntive per ridurre "Altro" ---
-    "arcobaleno": ["Bambini"],
+    "arcobaleno": ["Bambini", "Unicorni"],
+    "baby_body": ["Bambini", "Vestiti"],
+    "baby_shark": ["Bambini", "Animali"],
     "ballerina": ["Sport", "Bambini"],
+    "ballerine": ["Sport"],
     "coniglietto": ["Animali", "Pasqua"],
     "cigno": ["Animali"],
-    "gallina": ["Animali"],
+    "gallina": ["Animali", "Pasqua"],
     "gattino": ["Animali"],
     "elefantino": ["Animali"],
     "elefantini": ["Animali"],
     "cavalluccio": ["Animali"],
     "oca": ["Animali"],
     "leone": ["Animali"],
-    "aristogatti": ["Disney", "Animali"],
-    "bella_bestia": ["Disney"],
-    "bella_specchio": ["Disney"],
-    "belle_scomponibile": ["Disney"],
-    "bestia": ["Disney"],
-    "cappuccetto": ["Disney"],
-    "pinocchio": ["Disney"],
-    "trilly": ["Disney"],
-    "inside_out": ["Disney"],
     "stranger_things": ["Cinema"],
     "squid_game": ["Cinema"],
     "grinch": ["Natale"],
@@ -425,23 +457,19 @@ KEYWORD_MAP = {
     "numeri_bombati": ["Numeri"],
     "numeri_sottili": ["Numeri"],
     "cuore": ["Matrimonio"],
-    "spumante": ["Matrimonio"],
+    "cuori": ["Matrimonio"],
+    "spumante": ["Matrimonio", "Compleanno"],
     "flute": ["Matrimonio"],
     "fedi": ["Matrimonio"],
     "sposo": ["Matrimonio"],
     "mr&mrs": ["Matrimonio"],
-    "champagne": ["Matrimonio"],
+    "champagne": ["Matrimonio", "Compleanno"],
     "wedding": ["Matrimonio"],
-    "croce": ["Sacramenti"],
-    "battesimo": ["Sacramenti"],
-    "cresima": ["Sacramenti"],
-    "comunione": ["Sacramenti"],
+    "croce": ["Battesimo", "Comunione", "Cresima"],
     "case_composizione": ["Case"],
     "fattoria": ["Case", "Animali"],
     "fienile": ["Case"],
     "vetrina_negozio": ["Case"],
-    "principesse": ["Disney"],
-    "carrozza": ["Disney"],
     "moulin_rouge": ["Cinema"],
     "moulen_rouge": ["Cinema"],
     "joystick": ["Giocattoli"],
@@ -458,9 +486,10 @@ KEYWORD_MAP = {
     "marmellata": ["Cibo"],
     "gelatino": ["Cibo"],
     "tamburo": ["Musica"],
-    "vespa": ["Macchine", "Viaggi"],
-    "jeep": ["Macchine"],
-    "treruote": ["Macchine"],
+    "cassetta": ["Musica"],
+    "vespa": ["Viaggi"],
+    "jeep": ["Viaggi"],
+    "treruote": ["Viaggi"],
     "insegne_stradali": ["Viaggi"],
     "mongolfiera": ["Viaggi"],
     "valigie": ["Viaggi"],
@@ -472,16 +501,11 @@ KEYWORD_MAP = {
     "guanti": ["Vestiti"],
     "cappello": ["Vestiti"],
     "wonderwoman": ["Supereroi"],
-    "dalmata": ["Animali", "Disney"],
-    "carica_101": ["Disney", "Animali"],
-    "zootropolis": ["Disney", "Animali"],
-    "zootopia": ["Disney", "Animali"],
-    "funghetto": ["Piante"],
-    "funghi": ["Piante"],
     "quadrifoglio": ["Piante"],
     "foglie": ["Piante"],
-    "fiori": ["Piante"],
-    "spiga": ["Piante"],
+    "funghetto": ["Piante"],
+    "funghi": ["Piante"],
+    "fiori": ["Fiori"],
     "corallo": ["Mare"],
     "spirale_acqua": ["Mare"],
     "onde": ["Mare"],
@@ -500,17 +524,18 @@ KEYWORD_MAP = {
     "corona": ["Unicorni"],           # corona è tipica unicorni/principesse
     "zucche": ["Halloween"],
     "palloncini": ["Giocattoli"],
-    "pacco_regalo": ["Fiocchi"],
-    "pacchi_regalo": ["Fiocchi"],
+    "pacco_regalo": ["Fiocchi", "Natale"],
+    "pacchi_regalo": ["Fiocchi", "Natale"],
     "carote": ["Cibo"],
     "pera": ["Cibo"],
     "prugna": ["Cibo"],
     "farfalle": ["Animali"],
     "circo": ["Bambini"],
-    "luna": ["Bambini"],
     "nuvola": ["Bambini"],
     "nuvoletta": ["Bambini"],
-    "happy_birthday": ["Bambini"],
+    "happy_birthday": ["Compleanno"],
+    "birthday": ["Compleanno"],
+    "compleanno": ["Compleanno"],
     "love": ["Matrimonio"],
     "labbra": ["Trucchi"],
     "circo_giostra": ["Bambini"],
@@ -519,12 +544,32 @@ KEYWORD_MAP = {
     "tazza": ["Cibo"],
     "lanterna": ["Natale"],
     "texrture": ["Texture"],
-    "targa": ["Macchine"],
-    "orologio": ["Viaggi"],
+    "orologio": ["Vestiti"],
+    "scarpa": ["Vestiti"],
+    "occhiali": ["Vestiti"],
+    "corsetto": ["Vestiti"],
+    "sciarpa": ["Vestiti"],
     "libro": ["Laurea"],
     "libri": ["Laurea"],
     "matita": ["Bambini"],
     "matite": ["Bambini"],
+    # Lusso
+    "chanel": ["Lusso"],
+    "gucci": ["Lusso"],
+    "prada": ["Lusso"],
+    "versace": ["Lusso"],
+    "dior": ["Lusso"],
+    "louis_vuitton": ["Lusso"],
+    "vuitton": ["Lusso"],
+    "hermes": ["Lusso"],
+    "rolex": ["Lusso"],
+    "balenciaga": ["Lusso"],
+    "fendi": ["Lusso"],
+    "armani": ["Lusso"],
+    "valentino": ["Lusso"],
+    "cartier": ["Lusso"],
+    "bulgari": ["Lusso"],
+    "tiffany": ["Lusso"],
 }
 
 # Ordine delle keyword: le più lunghe prima, per evitare falsi match su
@@ -559,6 +604,236 @@ def classify(filename: str) -> list[str]:
     for kw in SORTED_KEYWORDS:
         if kw in stem:
             cats.update(KEYWORD_MAP[kw])
+
+    # "timbro riverso/riversi" è un prodotto diverso dai timbri: se il nome
+    # contiene la radice "rivers", rimuovi la categoria Timbri auto-assegnata.
+    if "rivers" in stem:
+        cats.discard("Timbri")
+
+    # "cane" come keyword (Animali) matcha come substring in candy_cane,
+    # biancaneve, ecc. Rimuovi Animali per questi falsi positivi.
+    if "candy" in stem or "biancaneve" in stem:
+        cats.discard("Animali")
+
+    # "biancaneve" contiene anche "neve" → matcha Natale (falso positivo).
+    if "biancaneve" in stem:
+        cats.discard("Natale")
+
+    # "cappuccetto_rosso" contiene "osso" → matcha Animali (falso positivo).
+    if "rosso" in stem:
+        cats.discard("Animali")
+
+    # "papera" contiene "pera" → matcha Cibo (falso positivo).
+    if "papera" in stem:
+        cats.discard("Cibo")
+
+    # "ingranaggio" contiene "rana" → matcha Animali (falso positivo).
+    if "ingranaggio" in stem:
+        cats.discard("Animali")
+
+    # Pattern "Animale_con_Decorazione": la decorazione dopo "_con_" non
+    # è la categoria primaria, è un dettaglio del prodotto animale.
+    if "_con_" in stem and "Animali" in cats:
+        after = stem.split("_con_", 1)[1]
+        cats.discard("Fiori")  # Cigno_con_Rosa, Coniglietto_con_Fiori
+        if "palloncin" in after:
+            cats.discard("Giocattoli")  # Elefantino_con_Palloncini
+        if "cappello" in after:
+            cats.discard("Vestiti")  # Oca/Papera_con_Cappello
+        if "fiocco" in after:
+            cats.discard("Fiocchi")  # Oca/Papera_con_Fiocco
+
+    # Animali in fattoria: "fattoria" → Case+Animali, ma per i prodotti
+    # animali specifici la categoria primaria è solo Animali. Eccezioni:
+    # fienile e staccionata che restano sia Animali che Case.
+    if "Animali" in cats and "Case" in cats and "fienile" not in stem and "staccionata" not in stem:
+        cats.discard("Case")
+
+    # "leone" finisce con "one" (matcha Bambini) — vale per qualsiasi
+    # leone, non solo Re Leone. Stesso falso positivo per altri prodotti
+    # che finiscono in -one (composizione, demogorgone, pozione) e
+    # per "alfabeto_circo" (matcha "circo" → Bambini ma è alfabeto).
+    if any(x in stem for x in ("leone", "composizione", "demogorgone", "pozione", "alfabeto", "limone", "maglione")):
+        cats.discard("Bambini")
+
+    # I baby body con tema decorativo (es. arcobaleno) sono Vestiti per
+    # bambini, non vanno categorizzati come Unicorni.
+    if "baby_body" in stem:
+        cats.discard("Unicorni")
+
+    # Prodotti che iniziano con "comunione" + croce: la croce è un dettaglio,
+    # il prodotto è di Comunione, non di Battesimo né Cresima.
+    if stem.startswith("comunione") and "croce" in stem:
+        cats.discard("Battesimo")
+        cats.discard("Cresima")
+
+    # Prodotti Bing con accessorio cibo (es. carote): primario è Bing.
+    if "Bing" in cats:
+        cats.discard("Cibo")
+
+    # "_con_fiori"/"_con_fiore"/"_con_fiorellini": il fiore è una decorazione,
+    # il prodotto principale non è un fiore.
+    if "_con_fior" in stem:
+        cats.discard("Fiori")
+
+    # "fiorellini" sono dettagli decorativi (cf. Texture_Fiorellini), non
+    # prodotti della cat Fiori.
+    if "fiorellini" in stem:
+        cats.discard("Fiori")
+
+    # "unicorno_torta" è un prodotto a tema unicorno (template/cutter),
+    # non un prodotto generico Cibo.
+    if "unicorno_torta" in stem:
+        cats.discard("Cibo")
+
+    # "corsetto" contiene "orsetto" → falso positivo Orsetti.
+    if "corsetto" in stem:
+        cats.discard("Orsetti")
+
+    # I prodotti che iniziano con "targa" sono targhette (Cornici). Per gli
+    # altri "X_targa" la categoria primaria è X (es. Mongolfiera_targa).
+    if stem.startswith("targa"):
+        cats.add("Cornici")
+
+    # "Pupazzo di Neve" è un prodotto natalizio, non un Giocattolo generico.
+    if "pupazzo_di_neve" in stem:
+        cats.discard("Giocattoli")
+
+    # "Cappello parlante" è il cappello di Harry Potter, non un vestito.
+    if "cappello_parlante" in stem:
+        cats.discard("Vestiti")
+
+    # "wonder" contiene "onde" → falso positivo Mare.
+    if "wonder" in stem:
+        cats.discard("Mare")
+
+    # "espositore" contiene "sposi" → falso positivo Matrimonio.
+    # Va in Vestiti + Bambini (è un porta-biscotti come appendiabiti).
+    if "espositore" in stem:
+        cats.discard("Matrimonio")
+        cats.add("Vestiti")
+        cats.add("Bambini")
+
+    # "Hello Kitty Cuore" non è un prodotto Matrimonio.
+    if "hello_kitty_cuore" in stem:
+        cats.discard("Matrimonio")
+
+    # "Occhio di bue cuore" va anche in Bambini.
+    if "occhio_di_bue" in stem:
+        cats.add("Bambini")
+
+    # "sciarpa" contiene "sci" → falso positivo Sport.
+    if "sciarpa" in stem:
+        cats.discard("Sport")
+
+    # I prodotti che iniziano con "Texture_" appartengono solo a Texture,
+    # qualunque sia il soggetto rappresentato (foglie/onde/farfalle/ecc.).
+    if stem.startswith("texture") or stem.startswith("texrture"):
+        cats.clear()
+        cats.add("Texture")
+
+    # Categorie aggiuntive per timbri specifici.
+    if "timbro_ramo" in stem:
+        cats.add("Piante")
+    if "timbro_promessa" in stem:
+        cats.add("Matrimonio")
+    if "pi_greco" in stem or "one_timbro" in stem:
+        cats.add("Numeri")
+
+    # "mongolfiera" contiene "golf" → falso positivo Sport.
+    if "mongolfiera" in stem:
+        cats.discard("Sport")
+
+    # "Polizia Distintivo" è il distintivo di Judy Hopps in Zootropolis.
+    if "polizia_distintivo" in stem:
+        cats.discard("Viaggi")
+        cats.add("Zootropolis")
+        cats.add("Disney")
+
+    # "Barbie_set_Topper": rimuovi cat Topper (resta solo Barbie).
+    if "barbie_set_topper" in stem:
+        cats.discard("Topper")
+
+    # "Orsetto Aviatore con Aereo" è un orsetto, non un prodotto Viaggi.
+    if "orsetto_aviatore" in stem:
+        cats.discard("Viaggi")
+
+    # Lettere decorative per matrimonio (con foglia/foglie → no Piante).
+    if "lettera_con_foglia" in stem or "lettera__con_foglia" in stem or "lettera_con_foglie" in stem:
+        cats.discard("Piante")
+        cats.add("Matrimonio")
+    if "lettera_busta" in stem or "lettera_mamma" in stem:
+        cats.add("Matrimonio")
+
+    # Sub-categorie di Bambini: i prodotti delle sub-cat ricevono anche la
+    # categoria "Bambini" parent.
+    BAMBINI_CHILDREN = {"Barbie", "Bing", "Cocomelon", "Dinosauri",
+                        "Hello Kitty", "Masha e Orso", "Orsetti", "Peppa Pig",
+                        "PJmask", "Sonic", "Super Mario", "Supereroi",
+                        "Unicorni"}
+    if cats & BAMBINI_CHILDREN:
+        cats.add("Bambini")
+    # Re Leone: i personaggi del franchise non sono animali generici.
+    if "Re Leone" in cats:
+        cats.discard("Animali")
+
+    # "treruote" è un veicolo (Ape Car a 3 ruote), il match "ape" → Animali
+    # è un falso positivo.
+    if "treruote" in stem:
+        cats.discard("Animali")
+
+    # Topolino: "paperino"/"paperina" contengono "ape" (matcha Animali);
+    # accessori del personaggio (guanto/cappello) non sono "Vestiti" generici.
+    if "Topolino" in cats:
+        cats.discard("Animali")
+        cats.discard("Vestiti")
+
+    # "X_con_cornice" non è una cornice ma un prodotto X decorato con
+    # cornice (es. Frozen_Logo_con_Cornice). Solo i prodotti che iniziano
+    # con "cornice" sono effettivamente nella cat Cornici.
+    if "_con_cornice" in stem and not stem.startswith("cornice"):
+        cats.discard("Cornici")
+
+    # I personaggi Zootropolis sono Disney/Zootropolis, non Animali generici.
+    if "Zootropolis" in cats:
+        cats.discard("Animali")
+
+    # "cocomelon" inizia con "coco" (film Disney) → falso positivo.
+    if "cocomelon" in stem:
+        cats.discard("Disney")
+
+    # Prodotti Comunione: "calice" contiene "alice" (Disney falso positivo)
+    # e "comunione" finisce con "one" (Bambini falso positivo).
+    if "Comunione" in cats:
+        cats.discard("Disney")
+        cats.discard("Bambini")
+
+    # Carica 101: i dalmata sono personaggi del franchise, non Animali generici.
+    if "Carica 101" in cats:
+        cats.discard("Animali")
+
+    # "carrozza_zucca" è la carrozza di Cenerentola (Disney), non Halloween.
+    if "carrozza_zucca" in stem:
+        cats.discard("Halloween")
+
+    # "_con_targa" è una targhetta decorativa (es. con il nome), non un veicolo.
+    if "_con_targa" in stem:
+        cats.discard("Viaggi")
+
+    # "Mamma Natale" è un personaggio natalizio, non un prodotto per festa
+    # della mamma.
+    if "mamma_natale" in stem:
+        cats.discard("Festa della Mamma")
+
+    # "_con_fiocco" è una decorazione, il prodotto principale non è un fiocco.
+    # Eccezione: i prodotti che iniziano con "cornice" mantengono Fiocchi
+    # perché la cornice è proprio a forma di fiocco.
+    if "_con_fiocco" in stem and not stem.startswith("cornice"):
+        cats.discard("Fiocchi")
+
+    # "Fiocco/Fiocchi di Neve" sono fiocchi di neve (Natale), non decorazioni.
+    if "fiocco_di_neve" in stem or "fiocchi_di_neve" in stem:
+        cats.discard("Fiocchi")
 
     return sorted(cats) if cats else ["Altro"]
 
@@ -640,10 +915,64 @@ def build_products(existing: dict[str, dict] | None = None) -> list[dict]:
 # ---------------------------------------------------------------------------
 # Generazione thumbnail
 # ---------------------------------------------------------------------------
+def _apply_watermark_to_image(img, wm):
+    """Sovrappone il watermark al centro, semitrasparente, scala relativa.
+    Mantiene l'alpha dell'originale per preservare la trasparenza nel WebP."""
+    img = img.convert("RGBA")
+    w, h = img.size
+    wm_w = int(w * WATERMARK_SCALE)
+    wm_h = max(1, int(wm.height * wm_w / wm.width))
+    from PIL import Image
+    wm_resized = wm.resize((wm_w, wm_h), Image.LANCZOS).convert("RGBA")
+    alpha = wm_resized.split()[-1].point(lambda p: int(p * WATERMARK_OPACITY))
+    wm_resized.putalpha(alpha)
+    x = (w - wm_w) // 2
+    y = (h - wm_h) // 2
+    img.alpha_composite(wm_resized, (x, y))
+    return img
+
+
+def apply_watermarks() -> None:
+    """Applica filigrana ai webp, una sola volta. Backup originali in imgs/originals/."""
+    if not WATERMARK_FILE.exists():
+        return
+    from PIL import Image
+    ORIGINALS_DIR.mkdir(parents=True, exist_ok=True)
+    wm = Image.open(WATERMARK_FILE).convert("RGBA")
+    files = sorted(IMGS_DIR.glob("*.webp"))
+    processed = 0
+    for src in files:
+        backup = ORIGINALS_DIR / src.name
+        if backup.exists():
+            continue
+        shutil.copy2(src, backup)
+        try:
+            with Image.open(src) as orig:
+                watermarked = _apply_watermark_to_image(orig, wm)
+                watermarked.save(src, "WEBP", quality=85, method=4)
+        except Exception as e:
+            print(f"  Errore watermark {src.name}: {e}")
+            shutil.copy2(backup, src)  # ripristina in caso di errore
+            continue
+        processed += 1
+        if processed % 200 == 0:
+            print(f"  {processed} watermark applicati...")
+    if processed:
+        print(f"Watermark applicato a {processed} nuove immagini (backup in {ORIGINALS_DIR})")
+
+
 def generate_thumbnails() -> None:
     from PIL import Image
     THUMB_DIR.mkdir(parents=True, exist_ok=True)
     files = sorted(IMGS_DIR.glob("*.webp"))
+    valid_names = {f.name for f in files}
+    orphans = 0
+    for thumb in THUMB_DIR.glob("*.webp"):
+        if thumb.name not in valid_names:
+            thumb.unlink()
+            orphans += 1
+    if orphans:
+        print(f"Thumbnail orfane rimosse: {orphans}")
     skipped = 0
     for i, src in enumerate(files, 1):
         dst = THUMB_DIR / src.name
@@ -693,15 +1022,19 @@ def print_stats(products: list[dict]) -> None:
 # Generazione HTML
 # ---------------------------------------------------------------------------
 ALL_CATEGORIES = [
-    "Alfabeto", "Piante", "Animali", "Viaggi", "Timbri", "Mare", "Sacramenti",
-    "Natale", "Bambini", "Barbie", "Supereroi", "Disney", "Bing", "Sport",
-    "Case", "Cibo", "Giocattoli", "Cocomelon", "Matrimonio", "Pasqua",
-    "Cornici", "Dinosauri", "Fiocchi", "Frozen", "Halloween", "Harry Potter",
-    "Hello Kitty", "Macchine", "Laurea", "Festa della mamma", "Masha e orso",
-    "Festa dei nonni", "Numeri", "Oceania", "Orsetti", "Peppa Pig", "Musica",
-    "PJmask", "Cinema", "Re Leone", "Trucchi", "Sonic", "Stitch", "Stray kids",
-    "Super Mario", "Texture", "Topolino", "Topper", "Unicorni", "Vestiti",
-    "Altro",
+    "Alfabeto", "Altro", "Animali", "Bambini", "Barbie", "Battesimo",
+    "Bella e Bestia", "Bing", "Carica 101", "Case", "Cibo", "Cinema",
+    "Cocomelon", "Compleanno", "Comunione", "Cornici", "Cresima", "Dinosauri",
+    "Disney",
+    "Festa dei Nonni", "Festa della Donna", "Festa della Mamma", "Fiocchi",
+    "Fiori", "Frozen", "Giocattoli", "Halloween", "Harry Potter", "Hello Kitty",
+    "Inside Out", "Laurea", "Lusso", "Mare", "Masha e Orso", "Matrimonio",
+    "Musica", "Natale",
+    "Numeri", "Oceania", "Orsetti", "Pasqua", "Peppa Pig", "Piante", "PJmask",
+    "Principesse", "Re Leone", "Sonic", "Sport", "Stitch", "Stray Kids",
+    "Super Mario", "Supereroi", "Texture", "Timbri", "Topolino", "Topper",
+    "Trucchi", "Unicorni", "Vestiti", "Viaggi", "Winnie The Pooh",
+    "Zootropolis",
 ]
 
 
@@ -749,7 +1082,30 @@ body {{
   flex-direction: column;
   z-index: 100;
   overflow: hidden;
+  transition: transform .25s ease;
 }}
+.sidebar.collapsed {{ transform: translateX(-100%); }}
+.btn-sidebar-toggle {{
+  position: fixed;
+  top: 14px;
+  left: calc(var(--sidebar-w) - 14px);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--white);
+  color: #fff;
+  cursor: pointer;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,.25);
+  transition: left .25s ease, transform .25s ease;
+}}
+.btn-sidebar-toggle.collapsed {{ left: 14px; transform: rotate(180deg); }}
+.btn-sidebar-toggle svg {{ width: 14px; height: 14px; }}
 .sidebar-logo {{
   padding: 18px 16px 14px;
   font-size: 1.2rem;
@@ -775,8 +1131,27 @@ body {{
   font-size: .82rem;
   outline: none;
 }}
+.sidebar-search {{ position: relative; }}
+.sidebar-search input {{ padding-right: 28px; }}
 .sidebar-search input::placeholder {{ color: #9ca3af; }}
 .sidebar-search input:focus {{ border-color: var(--accent); }}
+.btn-clear {{
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: none;
+  border-radius: 4px;
+}}
+.btn-clear:hover {{ color: var(--white); background: rgba(255,255,255,.08); }}
+.btn-clear.visible {{ display: block; }}
 .sidebar-list {{
   flex: 1;
   overflow-y: auto;
@@ -814,6 +1189,21 @@ body {{
   text-align: center;
 }}
 .cat-item.active .badge {{ background: rgba(255,255,255,.25); }}
+.cat-item.parent {{ font-weight: 600; color: #fff; }}
+.cat-item.parent .arrow {{
+  display: inline-block;
+  width: 10px;
+  margin-right: 6px;
+  padding: 4px;
+  margin-left: -4px;
+  transition: transform .15s;
+  font-size: .65rem;
+  opacity: .7;
+  cursor: pointer;
+}}
+.cat-item.parent .arrow:hover {{ opacity: 1; }}
+.cat-item.parent.expanded .arrow {{ transform: rotate(90deg); }}
+.cat-item.child {{ padding-left: 32px; font-size: .8rem; }}
 
 /* ===== MAIN ===== */
 .main {{
@@ -821,7 +1211,10 @@ body {{
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: margin-left .25s ease;
 }}
+.main.expanded {{ margin-left: 0; }}
+.main.expanded .topbar {{ padding-left: 56px; }}
 
 /* ===== TOPBAR ===== */
 .topbar {{
@@ -837,17 +1230,19 @@ body {{
   box-shadow: 0 2px 8px rgba(0,0,0,.3);
 }}
 .topbar-search {{
+  position: relative;
   display: flex;
   align-items: center;
   background: rgba(255,255,255,.09);
   border: 1px solid rgba(255,255,255,.15);
   border-radius: 8px;
-  padding: 0 12px;
+  padding: 0 4px 0 12px;
   gap: 8px;
   flex: 1;
   max-width: 380px;
 }}
 .topbar-search svg {{ opacity: .5; flex-shrink: 0; }}
+.topbar-search .btn-clear {{ position: static; transform: none; }}
 .topbar-search input {{
   background: none;
   border: none;
@@ -1194,6 +1589,16 @@ body {{
   color: var(--accent);
   font-weight: 500;
 }}
+.modal-info {{
+  font-size: .85rem;
+  color: #6b7280;
+  font-style: italic;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+}}
 .btn-close {{
   width: 100%;
   padding: 10px;
@@ -1215,6 +1620,7 @@ body {{
   .pills-bar {{ display: flex; }}
   .topbar {{ padding: 0 12px; gap: 8px; }}
   .content {{ padding: 12px; }}
+  .btn-sidebar-toggle {{ display: none; }}
 }}
 </style>
 </head>
@@ -1225,9 +1631,13 @@ body {{
   <div class="sidebar-logo">3D <span>Cubik</span></div>
   <div class="sidebar-search">
     <input type="text" id="sidebarCatSearch" placeholder="Cerca categoria..." autocomplete="off"/>
+    <button type="button" class="btn-clear" id="btnClearCatSearch" aria-label="Cancella">×</button>
   </div>
   <div class="sidebar-list" id="sidebarList"></div>
 </aside>
+<button type="button" class="btn-sidebar-toggle" id="btnSidebarToggle" aria-label="Mostra/nascondi categorie">
+  <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+</button>
 
 <!-- MAIN -->
 <div class="main">
@@ -1237,6 +1647,7 @@ body {{
     <div class="topbar-search">
       <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input type="text" id="searchInput" placeholder="Cerca prodotto..." autocomplete="off"/>
+      <button type="button" class="btn-clear" id="btnClearSearch" aria-label="Cancella ricerca">×</button>
     </div>
     <div class="breadcrumb" id="breadcrumb"><strong>Tutti</strong> i prodotti</div>
     <button class="btn-reset" id="btnReset">Reset filtri</button>
@@ -1265,6 +1676,7 @@ body {{
     <div class="modal-body">
       <div class="modal-name" id="modalName"></div>
       <div class="modal-tags" id="modalTags"></div>
+      <div class="modal-info" id="modalInfo">Disponibile in diverse misure</div>
       <button class="btn-close" id="btnClose">Chiudi</button>
     </div>
   </div>
@@ -1296,6 +1708,7 @@ async function loadData() {{
     const r = await fetch("products.json");
     if (!r.ok) throw new Error("HTTP " + r.status);
     PRODUCTS = await r.json();
+    PRODUCTS.forEach((p, i) => {{ p.num = String(i).padStart(4, "0"); }});
   }} catch(e) {{
     hideSkeleton();
     document.getElementById("loader").style.cssText = "display:flex;padding:40px 20px";
@@ -1336,18 +1749,68 @@ function catCount(cat) {{
   return PRODUCTS.filter(p => p.c.includes(cat)).length;
 }}
 
+const HIERARCHY = {{
+  "Bambini": ["Barbie", "Bing", "Cocomelon", "Dinosauri", "Hello Kitty", "Masha e Orso", "Orsetti", "Peppa Pig", "PJmask", "Sonic", "Super Mario", "Supereroi", "Unicorni"],
+  "Disney": ["Bella e Bestia", "Carica 101", "Frozen", "Inside Out", "Oceania", "Principesse", "Re Leone", "Stitch", "Topolino", "Winnie The Pooh", "Zootropolis"]
+}};
+const CHILD_TO_PARENT = {{}};
+for (const [p, cs] of Object.entries(HIERARCHY)) for (const c of cs) CHILD_TO_PARENT[c] = p;
+const expandedParents = new Set();
+
 function renderSidebar() {{
   const q = document.getElementById("sidebarCatSearch").value.trim().toLowerCase();
   const list = document.getElementById("sidebarList");
-  const cats = ["Tutti", ...ALL_CATEGORIES].filter(c => !q || c.toLowerCase().includes(q));
-  list.innerHTML = cats.map(cat => {{
-    const count = catCount(cat);
-    if (count === 0 && cat !== "Tutti") return "";
-    const active = state.category === cat ? " active" : "";
-    return `<div class="cat-item${{active}}" data-cat="${{escHtml(cat)}}"><span>${{escHtml(cat)}}</span><span class="badge">${{count}}</span></div>`;
-  }}).join("");
+  const matchQ = c => !q || c.toLowerCase().includes(q);
+  const items = [];
+
+  if (matchQ("Tutti")) {{
+    const a = state.category === "Tutti" ? " active" : "";
+    items.push(`<div class="cat-item${{a}}" data-cat="Tutti"><span>Tutti</span><span class="badge">${{PRODUCTS.length}}</span></div>`);
+  }}
+
+  for (const cat of ALL_CATEGORIES) {{
+    if (CHILD_TO_PARENT[cat]) continue;
+    if (HIERARCHY[cat]) {{
+      const children = HIERARCHY[cat].filter(c => ALL_CATEGORIES.includes(c) && catCount(c) > 0);
+      const parentMatchesQ = matchQ(cat);
+      const childrenMatchingQ = children.filter(matchQ);
+      const showParent = q ? (parentMatchesQ || childrenMatchingQ.length > 0) : children.length > 0;
+      if (!showParent) continue;
+      const expanded = q ? true : expandedParents.has(cat);
+      const a = state.category === cat ? " active" : "";
+      items.push(`<div class="cat-item parent${{expanded ? ' expanded' : ''}}${{a}}" data-cat="${{escHtml(cat)}}" data-parent="${{escHtml(cat)}}"><span><span class="arrow" data-toggle="1">▶</span>${{escHtml(cat)}}</span><span class="badge">${{catCount(cat)}}</span></div>`);
+      if (expanded) {{
+        const visible = q && !parentMatchesQ ? childrenMatchingQ : children;
+        for (const child of visible) {{
+          const a = state.category === child ? " active" : "";
+          items.push(`<div class="cat-item child${{a}}" data-cat="${{escHtml(child)}}"><span>${{escHtml(child)}}</span><span class="badge">${{catCount(child)}}</span></div>`);
+        }}
+      }}
+    }} else {{
+      if (!matchQ(cat) || catCount(cat) === 0) continue;
+      const a = state.category === cat ? " active" : "";
+      items.push(`<div class="cat-item${{a}}" data-cat="${{escHtml(cat)}}"><span>${{escHtml(cat)}}</span><span class="badge">${{catCount(cat)}}</span></div>`);
+    }}
+  }}
+
+  list.innerHTML = items.join("");
+  list.querySelectorAll(".cat-item .arrow[data-toggle]").forEach(el =>
+    el.addEventListener("click", e => {{
+      e.stopPropagation();
+      const p = el.closest(".cat-item.parent").dataset.parent;
+      if (expandedParents.has(p)) expandedParents.delete(p); else expandedParents.add(p);
+      renderSidebar();
+    }})
+  );
   list.querySelectorAll(".cat-item").forEach(el =>
-    el.addEventListener("click", () => selectCategory(el.dataset.cat))
+    el.addEventListener("click", () => {{
+      const p = el.dataset.parent;
+      if (p) {{
+        if (expandedParents.has(p)) expandedParents.delete(p);
+        else expandedParents.add(p);
+      }}
+      selectCategory(el.dataset.cat);
+    }})
   );
 }}
 
@@ -1409,7 +1872,7 @@ function renderGrid() {{
           ${{multi?`<button class="carousel-btn prev">&#8249;</button><button class="carousel-btn next">&#8250;</button><div class="carousel-dots">${{dots}}</div>`:""}}
         </div>
         <div class="card-body">
-          <div class="card-name">${{escHtml(p.n.replace(/_/g," "))}}</div>
+          <div class="card-name">${{p.num}}. ${{escHtml(p.n.replace(/_/g," "))}}</div>
           <div class="card-tags">${{tags}}</div>
         </div>
       </div>`;
@@ -1480,7 +1943,8 @@ let modalIdx = 0, modalImgs = [];
 function openModal(p) {{
   modalImgs = p.i; modalIdx = 0;
   renderModalCarousel();
-  document.getElementById("modalName").textContent = p.n.replace(/_/g," ");
+  document.getElementById("modalName").textContent = p.num + ". " + p.n.replace(/_/g," ");
+  document.getElementById("modalInfo").textContent = p.d && p.d.trim() ? p.d : "Disponibile in diverse misure";
   document.getElementById("modalTags").innerHTML = p.c.map(c =>
     `<span class="modal-tag">${{escHtml(c)}}</span>`).join("");
   document.getElementById("modalOverlay").classList.add("open");
@@ -1544,14 +2008,31 @@ function escHtml(s) {{
 }}
 
 let _st;
+function setupClear(inputId, btnId, onClear) {{
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(btnId);
+  const sync = () => btn.classList.toggle("visible", input.value !== "");
+  input.addEventListener("input", sync);
+  btn.addEventListener("click", () => {{ input.value=""; sync(); onClear(); input.focus(); }});
+  sync();
+}}
 document.getElementById("searchInput").addEventListener("input", e => {{
   clearTimeout(_st); _st = setTimeout(() => {{ state.search=e.target.value; state.page=1; render(); }}, 300);
 }});
 document.getElementById("sidebarCatSearch").addEventListener("input", renderSidebar);
+setupClear("searchInput", "btnClearSearch", () => {{ state.search=""; state.page=1; render(); }});
+setupClear("sidebarCatSearch", "btnClearCatSearch", renderSidebar);
+document.getElementById("btnSidebarToggle").addEventListener("click", () => {{
+  document.getElementById("sidebar").classList.toggle("collapsed");
+  document.querySelector(".main").classList.toggle("expanded");
+  document.getElementById("btnSidebarToggle").classList.toggle("collapsed");
+}});
 document.getElementById("btnReset").addEventListener("click", () => {{
   state={{category:"Tutti",search:"",page:1}};
   document.getElementById("searchInput").value="";
   document.getElementById("sidebarCatSearch").value="";
+  document.getElementById("btnClearSearch").classList.remove("visible");
+  document.getElementById("btnClearCatSearch").classList.remove("visible");
   render();
 }});
 document.getElementById("btnClose").addEventListener("click", closeModal);
@@ -1594,7 +2075,10 @@ if __name__ == "__main__":
     products = build_products(existing=existing)
     print(f"Prodotti totali: {len(products)}")
 
-    # 1. Thumbnail (solo per immagini nuove)
+    # 1. Watermark (solo per immagini non ancora processate)
+    apply_watermarks()
+
+    # 2. Thumbnail (solo per immagini nuove)
     generate_thumbnails()
 
     # 2. products.json

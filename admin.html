@@ -217,6 +217,12 @@ td { padding: 9px 14px; font-size: .84rem; vertical-align: middle; }
       </div>
 
       <div class="field">
+        <label>Descrizione (mostrata nel popup)</label>
+        <textarea id="editDesc" placeholder="Lascia vuoto per il testo predefinito 'Disponibile in diverse misure'"></textarea>
+        <div class="field-hint">Testo libero, viene mostrato sotto le categorie nel popup del catalogo.</div>
+      </div>
+
+      <div class="field">
         <label>Immagini <span style="font-weight:400;color:#9ca3af">(trascina per riordinare)</span></label>
         <div class="img-list" id="imgList"></div>
         <div class="img-add">
@@ -250,11 +256,156 @@ td { padding: 9px 14px; font-size: .84rem; vertical-align: middle; }
 </div>
 
 <script>
-const ALL_CATEGORIES = ["Alfabeto","Piante","Animali","Viaggi","Timbri","Mare","Sacramenti","Natale","Bambini","Barbie","Supereroi","Disney","Bing","Sport","Case","Cibo","Giocattoli","Cocomelon","Matrimonio","Pasqua","Cornici","Dinosauri","Fiocchi","Frozen","Halloween","Harry Potter","Hello Kitty","Macchine","Laurea","Festa della mamma","Masha e orso","Festa dei nonni","Numeri","Oceania","Orsetti","Peppa Pig","Musica","PJmask","Cinema","Re Leone","Trucchi","Sonic","Stitch","Stray kids","Super Mario","Texture","Topolino","Topper","Unicorni","Vestiti","Altro"];
+const ALL_CATEGORIES = ["Alfabeto","Altro","Animali","Bambini","Barbie","Battesimo","Bella e Bestia","Bing","Carica 101",
+"Case","Cibo","Cinema","Cocomelon","Compleanno","Comunione","Cornici","Cresima","Dinosauri","Disney","Festa dei Nonni",
+"Festa della Donna","Festa della Mamma","Fiocchi","Fiori","Frozen","Giocattoli","Halloween","Harry Potter","Hello Kitty","Inside Out",
+"Laurea","Lusso","Mare","Masha e Orso","Matrimonio","Musica","Natale","Numeri","Oceania","Orsetti",
+"Pasqua","Peppa Pig","Piante","PJmask","Principesse","Re Leone","Sonic","Sport","Stitch","Stray Kids","Super Mario","Supereroi",
+"Texture","Timbri","Topolino","Topper","Trucchi","Unicorni","Vestiti","Viaggi","Winnie The Pooh","Zootropolis"];
 
 // Keyword map per auto-classify
 const KEYWORD_MAP = {
-  "alfabeto":["Alfabeto"],"lettera":["Alfabeto"],"piante":["Piante"],"fiore":["Piante"],"albero":["Piante"],"fungo":["Piante"],"foglia":["Piante"],"rosa":["Piante"],"animale":["Animali"],"cane":["Animali"],"gatto":["Animali"],"coniglio":["Animali"],"elefante":["Animali"],"tigre":["Animali"],"panda":["Animali"],"orso":["Orsetti"],"orsetto":["Orsetti"],"orsetti":["Orsetti"],"teddy":["Orsetti"],"aereo":["Viaggi"],"treno":["Viaggi"],"nave":["Viaggi"],"valigia":["Viaggi"],"mongolfiera":["Viaggi"],"barca":["Viaggi","Mare"],"macchina":["Macchine"],"auto":["Macchine"],"ferrari":["Macchine"],"camion":["Macchine"],"moto":["Macchine","Viaggi"],"bici":["Macchine","Viaggi"],"timbro":["Timbri"],"timbri":["Timbri"],"mare":["Mare"],"pesce":["Mare","Animali"],"sirena":["Mare"],"conchiglia":["Mare"],"granchio":["Mare"],"polpo":["Mare"],"delfino":["Animali","Mare"],"battesimo":["Sacramenti"],"comunione":["Sacramenti"],"cresima":["Sacramenti"],"croce":["Sacramenti"],"natale":["Natale"],"babbo":["Natale"],"renna":["Natale"],"elfo":["Natale"],"grinch":["Natale"],"bambino":["Bambini"],"baby":["Bambini"],"neonato":["Bambini"],"bimbo":["Bambini"],"barbie":["Barbie"],"batman":["Supereroi"],"spiderman":["Supereroi"],"superman":["Supereroi"],"avengers":["Supereroi"],"hulk":["Supereroi"],"disney":["Disney"],"topolino":["Topolino","Disney"],"mickey":["Topolino","Disney"],"minnie":["Topolino","Disney"],"paperino":["Disney"],"frozen":["Frozen"],"elsa":["Frozen"],"olaf":["Frozen"],"bing":["Bing"],"calcio":["Sport"],"basket":["Sport"],"tennis":["Sport"],"pallone":["Sport"],"danza":["Sport"],"casa":["Case"],"casetta":["Case"],"castello":["Case"],"pizza":["Cibo"],"torta":["Cibo"],"gelato":["Cibo"],"fragola":["Cibo"],"cupcake":["Cibo"],"giocattolo":["Giocattoli"],"pupazzo":["Giocattoli"],"bambola":["Giocattoli"],"cocomelon":["Cocomelon"],"matrimonio":["Matrimonio"],"sposi":["Matrimonio"],"sposa":["Matrimonio"],"cuore":["Matrimonio"],"pasqua":["Pasqua"],"uovo":["Pasqua"],"cornice":["Cornici"],"frame":["Cornici"],"dinosauro":["Dinosauri"],"dino":["Dinosauri"],"t_rex":["Dinosauri"],"fiocco":["Fiocchi"],"nastro":["Fiocchi"],"halloween":["Halloween"],"zucca":["Halloween"],"fantasma":["Halloween"],"strega":["Halloween"],"harry_potter":["Harry Potter"],"hogwarts":["Harry Potter"],"hello_kitty":["Hello Kitty"],"kitty":["Hello Kitty"],"laurea":["Laurea"],"diploma":["Laurea"],"libro":["Laurea"],"mamma":["Festa della mamma"],"madre":["Festa della mamma"],"masha":["Masha e orso"],"nonno":["Festa dei nonni"],"nonna":["Festa dei nonni"],"numero":["Numeri"],"oceania":["Oceania","Disney"],"moana":["Oceania","Disney"],"peppa":["Peppa Pig"],"musica":["Musica"],"chitarra":["Musica"],"microfono":["Musica"],"pjmask":["PJmask"],"pigiamini":["PJmask"],"cinema":["Cinema"],"ciak":["Cinema"],"re_leone":["Re Leone","Disney"],"simba":["Re Leone","Disney"],"trucco":["Trucchi"],"makeup":["Trucchi"],"rossetto":["Trucchi"],"sonic":["Sonic"],"stitch":["Stitch","Disney"],"stray_kids":["Stray kids"],"mario":["Super Mario"],"luigi":["Super Mario"],"bowser":["Super Mario"],"texture":["Texture"],"pattern":["Texture"],"unicorno":["Unicorni"],"unicorn":["Unicorni"],"vestito":["Vestiti"],"abito":["Vestiti"],"gonna":["Vestiti"],"winnie":["Disney","Orsetti"],"pooh":["Disney","Orsetti"],"nemo":["Disney"],"buzz":["Disney"],"woody":["Disney"],"encanto":["Disney"],"principesse":["Disney"],"topper":["Topper"]
+  "alfabeto":["Alfabeto"],"lettera":["Alfabeto"],
+
+  "albero":["Piante"],"abete":["Piante"],"palma":["Piante"],"quercia":["Piante"],"ulivo":["Piante"],
+  "bonsai":["Piante"],
+  
+  "fiore":["Fiori"],"fiori":["Fiori"],"rosa":["Fiori"],"girasole":["Fiori"],"tulipano":["Fiori"],
+  "orchidea":["Fiori"],
+  
+  "foglia":["Piante"],"foglie":["Piante"],"quadrifoglio":["Piante"],"agrifoglio":["Piante"],
+  "edera":["Piante"],"fungo":["Piante"],"funghi":["Piante"],"cactus":["Piante"],
+  
+  "animale":["Animali"],"animali":["Animali"],"savana":["Animali"],"gallina":["Animali","Pasqua"],"cane":["Animali"],"gatto":["Animali"],
+  "coniglio":["Animali"],"elefante":["Animali"],"tigre":["Animali"],"panda":["Animali"],"osso":["Animali"],
+  
+  "orso":["Orsetti"],"orsetto":["Orsetti"],"orsetta":["Orsetti"],"teddy":["Orsetti"],
+  
+  "aereo":["Viaggi"],"treno":["Viaggi"],"nave":["Viaggi"],"valigia":["Viaggi"],"mongolfiera":["Viaggi"],
+  "barca":["Viaggi","Mare"],"macchina":["Viaggi"],"auto":["Viaggi"],"ferrari":["Viaggi"],"camion":["Viaggi"],"moto":["Viaggi"],
+  "bici":["Viaggi"],"vespa":["Viaggi"],"jeep":["Viaggi"],"mappamondo":["Viaggi"],
+  
+  "timbro":["Timbri"],"timbri":["Timbri"],
+  
+  "mare":["Mare"],"pesce":["Mare","Animali"],"sirena":["Mare"],"conchiglia":["Mare"],"granchio":["Mare"],
+  "polpo":["Mare"],"delfino":["Animali","Mare"],
+  
+  "battesimo":["Battesimo"],
+  
+  "comunione":["Comunione"],
+  
+  "cresima":["Cresima"],
+  
+  "croce":["Battesimo","Comunione","Cresima"],
+
+  "natale":["Natale"],"babbo":["Natale"],"renna":["Natale"],"elfo":["Natale"],"grinch":["Natale"],
+  "neve":["Natale"],
+
+  "bambino":["Bambini"],"baby":["Bambini"],"neonato":["Bambini"],"bimbo":["Bambini"],"bimba":["Bambini"],
+
+  "barbie":["Barbie"],
+
+  "batman":["Supereroi"],"spiderman":["Supereroi"],"superman":["Supereroi"],"avengers":["Supereroi"],
+  "hulk":["Supereroi"],"fumetto":["Supereroi"],"fumetti":["Supereroi"],
+  
+  "disney":["Disney"],"paperino":["Disney"],"pluto":["Disney"],"pippo":["Disney"],
+  "cenerentola":["Disney"],"biancaneve":["Disney"],"ariel":["Disney"],"sirenetta":["Disney"],
+  "rapunzel":["Disney"],"mulan":["Disney"],"pocahontas":["Disney"],"bambi":["Disney"],
+  "dumbo":["Disney"],"pinocchio":["Disney"],"nemo":["Disney"],"buzz":["Disney"],"woody":["Disney"],
+  "toy_story":["Disney"],"coco":["Disney"],"encanto":["Disney"],"alice":["Disney"],
+  "peter_pan":["Disney"],"trilli":["Disney"],"trilly":["Disney"],"aladdin":["Disney"],
+  "tarzan":["Disney"],"aurora":["Disney"],"gaston":["Disney"],"jasmine":["Disney"],
+  "bella_bestia":["Disney","Bella e Bestia"],"bella_specchio":["Disney","Bella e Bestia"],"belle_scomponibile":["Disney","Bella e Bestia"],
+  "bestia":["Disney","Bella e Bestia"],"cappuccetto":["Bambini"],"inside_out":["Disney","Inside Out"],"principesse":["Disney","Principesse"],
+  "carrozza":["Disney","Principesse"],"aristogatti":["Disney","Animali"],"carica_101":["Disney","Carica 101"],
+  "zootropolis":["Disney","Animali"],"zootopia":["Disney","Animali"],"dalmata":["Disney","Animali"],
+  "lilo":["Disney","Stitch"],"dory":["Disney","Mare"],"topolino":["Topolino","Disney"],
+  "mickey":["Topolino","Disney"],"minnie":["Topolino","Disney"],
+  
+  "frozen":["Frozen"],"elsa":["Frozen"],"olaf":["Frozen"],
+  
+  "bing":["Bing"],
+  
+  "calcio":["Sport"],"basket":["Sport"],"tennis":["Sport"],"pallone":["Sport"],"danza":["Sport"],
+  "ballerine":["Sport"],
+  
+  "casa":["Case"],"case":["Case"],"casetta":["Case"],"castello":["Case"],
+  
+  "pizza":["Cibo"],"bottiglia":["Cibo"],"torta":["Cibo"],"gelato":["Cibo"],"fragola":["Cibo"],"cupcake":["Cibo"],"candy_cane":["Natale","Cibo"],
+  "biglietto":["Cinema"],"fiocchetto":["Fiocchi"],"cavalli":["Animali"],"osso":["Animali"],"neve":["Natale"],"tiktok":["Musica"],"mappamondo":["Viaggi"],"quadrato":["Cornici"],"cavalluccio_marino":["Animali","Mare"],
+  "arcobaleno":["Bambini","Unicorni"],"baby_body":["Bambini","Vestiti"],"baby_shark":["Bambini","Animali"],"pacco_regalo":["Fiocchi","Natale"],"pacchi_regalo":["Fiocchi","Natale"],"happy_birthday":["Compleanno"],"birthday":["Compleanno"],"compleanno":["Compleanno"],
+  "bottiglia":["Cibo"],
+  
+  "giocattolo":["Giocattoli"],"pupazzo":["Giocattoli"],"bambola":["Giocattoli"],"aquilone":["Giocattoli"],
+  
+  "cocomelon":["Cocomelon"],
+  
+  "matrimonio":["Matrimonio"],"sposi":["Matrimonio"],"sposa":["Matrimonio"],"cuore":["Matrimonio"],
+  "cuori":["Matrimonio"],
+  
+  "pasqua":["Pasqua"],"uovo":["Pasqua"],
+  
+  "cornice":["Cornici"],"frame":["Cornici"],"quadrato":["Cornici"],
+  
+  "dinosauro":["Dinosauri"],"dino":["Dinosauri"],"t_rex":["Dinosauri"],
+  
+  "fiocco":["Fiocchi"],"nastro":["Fiocchi"],"fiocchetto":["Fiocchi"],
+
+  "halloween":["Halloween"],"zucca":["Halloween"],"fantasma":["Halloween"],"strega":["Halloween"],
+
+  "harry_potter":["Harry Potter"],"hogwarts":["Harry Potter"],
+  
+  "hello_kitty":["Hello Kitty"],"kitty":["Hello Kitty"],
+  
+  "laurea":["Laurea"],"diploma":["Laurea"],"libro":["Laurea"],
+
+  "mamma":["Festa della Mamma"],"madre":["Festa della Mamma"],
+  
+  "frida_khalo":["Festa della Donna"],"frida":["Festa della Donna"],
+  
+  "masha":["Masha e Orso"],
+  
+  "nonno":["Festa dei Nonni"],"nonna":["Festa dei Nonni"],
+  
+  "numero":["Numeri"],
+  
+  "oceania":["Oceania","Disney"],"moana":["Oceania","Disney"],
+  
+  "peppa":["Peppa Pig"],
+  
+  "musica":["Musica"],"chitarra":["Musica"],"microfono":["Musica"],"cassetta":["Musica"],"tiktok":["Musica"],
+  
+  "pjmask":["PJmask"],"pigiamini":["PJmask"],
+
+  "cinema":["Cinema"],"ciak":["Cinema"],"popcorn":["Cinema","Cibo"],"biglietto":["Cinema"],
+  
+  "re_leone":["Re Leone","Disney"],"simba":["Re Leone","Disney"],
+
+  "trucco":["Trucchi"],"makeup":["Trucchi"],"rossetto":["Trucchi"],"smalto":["Trucchi"],
+  
+  "sonic":["Sonic"],
+
+  "stitch":["Stitch","Disney"],
+  
+  "stray_kids":["Stray Kids"],
+  
+  "mario":["Super Mario"],"luigi":["Super Mario"],"bowser":["Super Mario"],
+  
+  "texture":["Texture"],"pattern":["Texture"],
+  
+  "unicorno":["Unicorni"],"unicorn":["Unicorni"],
+  
+  "vestito":["Vestiti"],"abito":["Vestiti"],"gonna":["Vestiti"],
+
+  "winnie":["Winnie The Pooh","Disney"],"pooh":["Winnie The Pooh","Disney"],
+  "zootropolis":["Disney","Zootropolis","Animali"],"zootopia":["Disney","Zootropolis","Animali"],
+
+  "topper":["Topper"],
+  
+  "chanel":["Lusso"],"gucci":["Lusso"],"prada":["Lusso"],"versace":["Lusso"],"dior":["Lusso"],
+  "louis_vuitton":["Lusso"],"vuitton":["Lusso"],"hermes":["Lusso"],"rolex":["Lusso"],
+  "balenciaga":["Lusso"],"fendi":["Lusso"],"armani":["Lusso"],"valentino":["Lusso"],"cartier":["Lusso"],
+  "bulgari":["Lusso"],"tiffany":["Lusso"]
 };
 const SORTED_KW = Object.keys(KEYWORD_MAP).sort((a,b) => b.length - a.length);
 
@@ -262,6 +413,63 @@ function autoClassify(name) {
   const stem = name.toLowerCase().replace(/ /g,"_");
   const cats = new Set();
   for (const kw of SORTED_KW) { if (stem.includes(kw)) KEYWORD_MAP[kw].forEach(c => cats.add(c)); }
+  if (stem.includes("rivers")) cats.delete("Timbri");
+  if (stem.includes("candy") || stem.includes("biancaneve")) cats.delete("Animali");
+  if (stem.includes("biancaneve")) cats.delete("Natale");
+  if (stem.includes("rosso")) cats.delete("Animali");
+  if (stem.includes("papera")) cats.delete("Cibo");
+  if (stem.includes("ingranaggio")) cats.delete("Animali");
+  if (stem.includes("_con_") && cats.has("Animali")) {
+    const after = stem.split("_con_")[1] || "";
+    cats.delete("Fiori");
+    if (after.includes("palloncin")) cats.delete("Giocattoli");
+    if (after.includes("cappello")) cats.delete("Vestiti");
+    if (after.includes("fiocco")) cats.delete("Fiocchi");
+  }
+  if (cats.has("Animali") && cats.has("Case") && !stem.includes("fienile") && !stem.includes("staccionata")) {
+    cats.delete("Case");
+  }
+  if (["leone","composizione","demogorgone","pozione","alfabeto","limone","maglione"].some(x => stem.includes(x))) cats.delete("Bambini");
+  if (stem.includes("baby_body")) cats.delete("Unicorni");
+  if (stem.startsWith("comunione") && stem.includes("croce")) { cats.delete("Battesimo"); cats.delete("Cresima"); }
+  if (cats.has("Bing")) cats.delete("Cibo");
+  if (stem.includes("_con_fior")) cats.delete("Fiori");
+  if (stem.includes("fiorellini")) cats.delete("Fiori");
+  if (stem.includes("unicorno_torta")) cats.delete("Cibo");
+  if (stem.includes("corsetto")) cats.delete("Orsetti");
+  if (stem.startsWith("targa")) cats.add("Cornici");
+  if (stem.includes("pupazzo_di_neve")) cats.delete("Giocattoli");
+  if (stem.includes("cappello_parlante")) cats.delete("Vestiti");
+  if (stem.includes("wonder")) cats.delete("Mare");
+  if (stem.includes("espositore")) { cats.delete("Matrimonio"); cats.add("Vestiti"); cats.add("Bambini"); }
+  if (stem.includes("hello_kitty_cuore")) cats.delete("Matrimonio");
+  if (stem.includes("occhio_di_bue")) cats.add("Bambini");
+  if (stem.includes("sciarpa")) { cats.delete("Sport"); cats.add("Vestiti"); }
+  if (stem.startsWith("texture") || stem.startsWith("texrture")) { cats.clear(); cats.add("Texture"); }
+  if (stem.includes("timbro_ramo")) cats.add("Piante");
+  if (stem.includes("timbro_promessa")) cats.add("Matrimonio");
+  if (stem.includes("pi_greco") || stem.includes("one_timbro")) cats.add("Numeri");
+  if (stem.includes("mongolfiera")) cats.delete("Sport");
+  if (stem.includes("polizia_distintivo")) { cats.delete("Viaggi"); cats.add("Zootropolis"); cats.add("Disney"); }
+  if (stem.includes("barbie_set_topper")) cats.delete("Topper");
+  if (stem.includes("orsetto_aviatore")) cats.delete("Viaggi");
+  if (stem.includes("lettera_con_foglia") || stem.includes("lettera__con_foglia") || stem.includes("lettera_con_foglie")) { cats.delete("Piante"); cats.add("Matrimonio"); }
+  if (stem.includes("lettera_busta") || stem.includes("lettera_mamma")) cats.add("Matrimonio");
+  const BAMBINI_CHILDREN = ["Bing","Cocomelon","Dinosauri","Hello Kitty","Masha e Orso","Orsetti","Peppa Pig","PJmask","Sonic","Super Mario","Supereroi","Unicorni"];
+  if (BAMBINI_CHILDREN.some(c => cats.has(c))) cats.add("Bambini");
+  if (cats.has("Re Leone")) cats.delete("Animali");
+  if (stem.includes("treruote")) cats.delete("Animali");
+  if (cats.has("Topolino")) { cats.delete("Animali"); cats.delete("Vestiti"); }
+  if (stem.includes("_con_cornice") && !stem.startsWith("cornice")) cats.delete("Cornici");
+  if (cats.has("Zootropolis")) cats.delete("Animali");
+  if (stem.includes("cocomelon")) cats.delete("Disney");
+  if (cats.has("Comunione")) { cats.delete("Disney"); cats.delete("Bambini"); }
+  if (cats.has("Carica 101")) cats.delete("Animali");
+  if (stem.includes("carrozza_zucca")) cats.delete("Halloween");
+  if (stem.includes("_con_targa")) cats.delete("Viaggi");
+  if (stem.includes("mamma_natale")) cats.delete("Festa della Mamma");
+  if (stem.includes("_con_fiocco") && !stem.startsWith("cornice")) cats.delete("Fiocchi");
+  if (stem.includes("fiocco_di_neve") || stem.includes("fiocchi_di_neve")) cats.delete("Fiocchi");
   return cats.size ? [...cats].sort() : ["Altro"];
 }
 
@@ -285,11 +493,16 @@ document.getElementById("fileInput").addEventListener("change", e => {
       PRODUCTS = JSON.parse(ev.target.result);
       if (!Array.isArray(PRODUCTS)) throw new Error("Non è un array");
       // Support both old keys (name/imgs/categories) and new compact keys (n/i/c)
-      PRODUCTS = PRODUCTS.map(p => ({
-        n: p.n ?? p.name ?? "",
-        i: p.i ?? p.imgs ?? [],
-        c: p.c ?? p.categories ?? [],
-      }));
+      PRODUCTS = PRODUCTS.map(p => {
+        const out = {
+          n: p.n ?? p.name ?? "",
+          i: p.i ?? p.imgs ?? [],
+          c: p.c ?? p.categories ?? [],
+        };
+        const d = p.d ?? p.desc ?? p.description;
+        if (d) out.d = d;
+        return out;
+      });
       loadedFileName = file.name;
       // Reset search/filter state for new file
       clearTimeout(_st);
@@ -416,11 +629,12 @@ document.getElementById("catFilter").addEventListener("change", e => {
 function openEdit(idx) {
   editIdx = idx;
   const p = idx === -1
-    ? { n: "", i: [], c: [] }
+    ? { n: "", i: [], c: [], d: "" }
     : PRODUCTS[idx];
 
   document.getElementById("editTitle").textContent = idx === -1 ? "Nuovo prodotto" : "Modifica prodotto";
   document.getElementById("editName").value = p.n;
+  document.getElementById("editDesc").value = p.d || "";
   editImgs = [...p.i];
 
   buildCatGrid(p.c);
@@ -510,7 +724,9 @@ function saveEdit() {
   if (cats.length === 0) { toast("Seleziona almeno una categoria", "danger"); return; }
   if (editImgs.length === 0) { toast("Aggiungi almeno un'immagine", "danger"); return; }
 
+  const desc = document.getElementById("editDesc").value.trim();
   const product = { n: name, i: [...editImgs], c: cats };
+  if (desc) product.d = desc;
   if (editIdx === -1) {
     PRODUCTS.push(product);
     toast("✓ Prodotto aggiunto", "success");
