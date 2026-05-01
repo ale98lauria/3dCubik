@@ -17,6 +17,7 @@ ORIGINALS_DIR = Path("imgs/originals")
 WATERMARK_FILE = Path("imgs/watermark.png")
 WATERMARK_OPACITY = 0.20
 WATERMARK_SCALE = 0.45
+BACKGROUND_FILE = Path("imgs/3dcubik_example.png")
 THUMB_SIZE   = (320, 320)
 THUMB_QUALITY = 80
 OUTPUT_HTML  = Path("index.html")
@@ -916,29 +917,25 @@ def build_products(existing: dict[str, dict] | None = None) -> list[dict]:
 # Generazione thumbnail
 # ---------------------------------------------------------------------------
 def _apply_watermark_to_image(img, wm):
-    """Sovrappone il watermark al centro, semitrasparente, scala relativa.
+    """Sovrappone il pattern watermark a tutta l'immagine, semitrasparente.
     Mantiene l'alpha dell'originale per preservare la trasparenza nel WebP."""
+    from PIL import Image
     img = img.convert("RGBA")
     w, h = img.size
-    wm_w = int(w * WATERMARK_SCALE)
-    wm_h = max(1, int(wm.height * wm_w / wm.width))
-    from PIL import Image
-    wm_resized = wm.resize((wm_w, wm_h), Image.LANCZOS).convert("RGBA")
+    wm_resized = wm.resize((w, h), Image.LANCZOS).convert("RGBA")
     alpha = wm_resized.split()[-1].point(lambda p: int(p * WATERMARK_OPACITY))
     wm_resized.putalpha(alpha)
-    x = (w - wm_w) // 2
-    y = (h - wm_h) // 2
-    img.alpha_composite(wm_resized, (x, y))
+    img.alpha_composite(wm_resized)
     return img
 
 
 def apply_watermarks() -> None:
     """Applica filigrana ai webp, una sola volta. Backup originali in imgs/originals/."""
-    if not WATERMARK_FILE.exists():
+    if not BACKGROUND_FILE.exists():
         return
     from PIL import Image
     ORIGINALS_DIR.mkdir(parents=True, exist_ok=True)
-    wm = Image.open(WATERMARK_FILE).convert("RGBA")
+    wm = Image.open(BACKGROUND_FILE).convert("RGBA")
     files = sorted(IMGS_DIR.glob("*.webp"))
     processed = 0
     for src in files:
@@ -1046,7 +1043,10 @@ def generate_html() -> str:
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>3D Cubik — Catalogo</title>
+<title>3dCubik — Catalogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ===== RESET & VARIABLES ===== */
 *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -1108,14 +1108,16 @@ body {{
 .btn-sidebar-toggle svg {{ width: 14px; height: 14px; }}
 .sidebar-logo {{
   padding: 18px 16px 14px;
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
   color: var(--white);
-  letter-spacing: .03em;
   border-bottom: 1px solid rgba(255,255,255,.08);
   flex-shrink: 0;
 }}
-.sidebar-logo span {{ color: var(--accent); }}
+.sidebar-logo span {{ color: var(--white); }}
 .sidebar-search {{
   padding: 10px 12px;
   flex-shrink: 0;
@@ -1614,13 +1616,21 @@ body {{
 .btn-close:hover {{ opacity: .88; }}
 
 /* ===== RESPONSIVE ===== */
+.sidebar-backdrop {{
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 150;
+}}
 @media (max-width: 640px) {{
-  .sidebar {{ display: none; }}
+  .sidebar {{ display: flex; z-index: 200; }}
   .main {{ margin-left: 0; }}
-  .pills-bar {{ display: flex; }}
+  .pills-bar {{ display: none; }}
   .topbar {{ padding: 0 12px; gap: 8px; }}
   .content {{ padding: 12px; }}
-  .btn-sidebar-toggle {{ display: none; }}
+  .btn-sidebar-toggle {{ display: flex; z-index: 201; }}
+  .main.expanded .topbar {{ padding-left: 12px; }}
+  .sidebar-backdrop.visible {{ display: block; }}
 }}
 </style>
 </head>
@@ -1628,7 +1638,7 @@ body {{
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">3D <span>Cubik</span></div>
+  <div class="sidebar-logo">3D<span>Cubik</span></div>
   <div class="sidebar-search">
     <input type="text" id="sidebarCatSearch" placeholder="Cerca categoria..." autocomplete="off"/>
     <button type="button" class="btn-clear" id="btnClearCatSearch" aria-label="Cancella">×</button>
@@ -1638,6 +1648,7 @@ body {{
 <button type="button" class="btn-sidebar-toggle" id="btnSidebarToggle" aria-label="Mostra/nascondi categorie">
   <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
 </button>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
 <!-- MAIN -->
 <div class="main">
@@ -1826,7 +1837,12 @@ function renderPills() {{
   );
 }}
 
-function selectCategory(cat) {{ state.category = cat; state.page = 1; render(); }}
+function selectCategory(cat) {{
+  state.category = cat; state.page = 1; render();
+  if (window.innerWidth <= 640 && !document.getElementById("sidebar").classList.contains("collapsed")) {{
+    _toggleSidebar();
+  }}
+}}
 
 function renderBreadcrumb() {{
   const f = filtered();
@@ -2017,16 +2033,32 @@ function setupClear(inputId, btnId, onClear) {{
   sync();
 }}
 document.getElementById("searchInput").addEventListener("input", e => {{
-  clearTimeout(_st); _st = setTimeout(() => {{ state.search=e.target.value; state.page=1; render(); }}, 300);
+  clearTimeout(_st);
+  _st = setTimeout(() => {{
+    const v = e.target.value;
+    if (v && state.category !== "Tutti") state.category = "Tutti";
+    state.search = v; state.page = 1; render();
+  }}, 300);
 }});
 document.getElementById("sidebarCatSearch").addEventListener("input", renderSidebar);
 setupClear("searchInput", "btnClearSearch", () => {{ state.search=""; state.page=1; render(); }});
 setupClear("sidebarCatSearch", "btnClearCatSearch", renderSidebar);
-document.getElementById("btnSidebarToggle").addEventListener("click", () => {{
-  document.getElementById("sidebar").classList.toggle("collapsed");
+const _isMobile = () => window.innerWidth <= 640;
+const _sidebar = document.getElementById("sidebar");
+const _sbBtn = document.getElementById("btnSidebarToggle");
+const _sbBack = document.getElementById("sidebarBackdrop");
+if (_isMobile()) {{
+  _sidebar.classList.add("collapsed");
+  _sbBtn.classList.add("collapsed");
+}}
+function _toggleSidebar() {{
+  _sidebar.classList.toggle("collapsed");
   document.querySelector(".main").classList.toggle("expanded");
-  document.getElementById("btnSidebarToggle").classList.toggle("collapsed");
-}});
+  _sbBtn.classList.toggle("collapsed");
+  if (_isMobile()) _sbBack.classList.toggle("visible", !_sidebar.classList.contains("collapsed"));
+}}
+_sbBtn.addEventListener("click", _toggleSidebar);
+_sbBack.addEventListener("click", _toggleSidebar);
 document.getElementById("btnReset").addEventListener("click", () => {{
   state={{category:"Tutti",search:"",page:1}};
   document.getElementById("searchInput").value="";

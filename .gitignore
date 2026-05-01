@@ -9,3 +9,6 @@ __pycache__/
 
 # Claude Code
 .claude/
+
+# Backup originali pre-watermark (locale)
+imgs/originals/

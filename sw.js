@@ -1,4 +1,4 @@
-const CACHE = "3dcubik-v12";
+const CACHE = "3dcubik-v14";
 const PRECACHE = ["/", "/index.html", "/products.json"];
 
 self.addEventListener("install", e => {
@@ -16,7 +16,12 @@ self.addEventListener("activate", e => {
 });
 
 self.addEventListener("fetch", e => {
-  const { pathname } = new URL(e.request.url);
+  const url = new URL(e.request.url);
+
+  // Risorse cross-origin (Google Fonts, ecc.): lascia gestire al browser
+  if (url.origin !== self.location.origin) return;
+
+  const { pathname } = url;
 
   // Immagini: Cache First (non cambiano mai)
   if (pathname.startsWith("/imgs/")) {
