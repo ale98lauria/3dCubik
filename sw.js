@@ -1,4 +1,4 @@
-const CACHE = "3dcubik-v14";
+const CACHE = "3dcubik-v16";
 const PRECACHE = ["/", "/index.html", "/products.json"];
 
 self.addEventListener("install", e => {

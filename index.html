@@ -654,7 +654,7 @@ body {
 </div>
 
 <script>
-const ALL_CATEGORIES = ["Alfabeto","Altro","Animali","Bambini","Barbie","Battesimo","Bella e Bestia","Bing","Carica 101","Case","Cibo","Cinema","Cocomelon","Compleanno","Comunione","Cornici","Cresima","Dinosauri","Disney","Festa dei Nonni","Festa della Donna","Festa della Mamma","Fiocchi","Fiori","Frozen","Giocattoli","Halloween","Harry Potter","Hello Kitty","Inside Out","Laurea","Lusso","Mare","Masha e Orso","Matrimonio","Musica","Natale","Numeri","Oceania","Orsetti","Pasqua","Peppa Pig","Piante","PJmask","Principesse","Re Leone","Sonic","Sport","Stitch","Stray Kids","Super Mario","Supereroi","Texture","Timbri","Topolino","Topper","Trucchi","Unicorni","Vestiti","Viaggi","Winnie The Pooh","Zootropolis"];
+const ALL_CATEGORIES = ["Alfabeto","Altro","Animali","Baby Boss","Bambini","Barbie","Battesimo","Bella e Bestia","Bing","Carica 101","Case","Cibo","Cinema","Cocomelon","Compleanno","Comunione","Cornici","Cresima","Dinosauri","Disney","Festa dei Nonni","Festa della Donna","Festa della Mamma","Fiocchi","Fiori","Frozen","Giocattoli","Halloween","Harry Potter","Hello Kitty","Inside Out","Laurea","Lusso","Mare","Masha e Orso","Matrimonio","Musica","Natale","Numeri","Oceania","Pasqua","Peppa Pig","Piante","PJmask","Principesse","Re Leone","Sonic","Sport","Stitch","Stray Kids","Super Mario","Supereroi","Texture","Timbri","Topolino","Topper","Trucchi","Unicorni","Vestiti","Viaggi","Winnie The Pooh","Zootropolis"];
 const PER_PAGE = 48;
 let PRODUCTS = [];
 let state = { category: "Tutti", search: "", page: 1 };
@@ -710,8 +710,9 @@ function loadImg(img) {
 function filtered() {
   return PRODUCTS.filter(p => {
     const catOk = state.category === "Tutti" || p.c.includes(state.category);
-    const q = state.search.trim().toLowerCase();
-    return catOk && (!q || p.n.toLowerCase().includes(q));
+    const q = state.search.trim().toLowerCase().replace(/[_\s]+/g, " ");
+    const name = p.n.toLowerCase().replace(/[_\s]+/g, " ");
+    return catOk && (!q || name.includes(q));
   });
 }
 
@@ -721,7 +722,7 @@ function catCount(cat) {
 }
 
 const HIERARCHY = {
-  "Bambini": ["Barbie", "Bing", "Cocomelon", "Dinosauri", "Hello Kitty", "Masha e Orso", "Orsetti", "Peppa Pig", "PJmask", "Sonic", "Super Mario", "Supereroi", "Unicorni"],
+  "Bambini": ["Baby Boss", "Barbie", "Bing", "Cocomelon", "Dinosauri", "Harry Potter", "Hello Kitty", "Masha e Orso", "Peppa Pig", "PJmask", "Sonic", "Super Mario", "Supereroi", "Unicorni"],
   "Disney": ["Bella e Bestia", "Carica 101", "Frozen", "Inside Out", "Oceania", "Principesse", "Re Leone", "Stitch", "Topolino", "Winnie The Pooh", "Zootropolis"]
 };
 const CHILD_TO_PARENT = {};

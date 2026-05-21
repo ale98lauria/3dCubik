@@ -28,410 +28,152 @@ PER_PAGE = 48
 # Dizionario keyword → categorie
 # ---------------------------------------------------------------------------
 KEYWORD_MAP = {
-    "alfabeto": ["Alfabeto"],
-    "lettera": ["Alfabeto"],
+    "alfabeto": ["Alfabeto"], "lettera": ["Alfabeto"],
     # Alberi (assorbiti in Piante)
-    "abete": ["Piante"],
-    "albero": ["Piante"],
-    "palma": ["Piante"],
-    "bonsai": ["Piante"],
-    "quercia": ["Piante"],
+    "abete": ["Piante"], "albero": ["Piante"], "palma": ["Piante"], "bonsai": ["Piante"], "quercia": ["Piante"],
     "ulivo": ["Piante"],
     # Fiori
-    "fiore": ["Fiori"],
-    "girasole": ["Fiori"],
-    "orchidea": ["Fiori"],
-    "rosa": ["Fiori"],
-    "tulipano": ["Fiori"],
-    "bouquet": ["Fiori"],
-    "margherita": ["Fiori"],
-    "giglio": ["Fiori"],
-    "lavanda": ["Fiori"],
-    "mimosa": ["Fiori"],
+    "fiore": ["Fiori"], "girasole": ["Fiori"], "orchidea": ["Fiori"], "rosa": ["Fiori"], "tulipano": ["Fiori"],
+    "bouquet": ["Fiori"], "margherita": ["Fiori"], "giglio": ["Fiori"], "lavanda": ["Fiori"], "mimosa": ["Fiori"],
     "garofano": ["Fiori"],
     # Piante (foglie e altro materiale vegetale)
-    "foglia": ["Piante"],
-    "agrifoglio": ["Piante"],
-    "edera": ["Piante"],
-    "fungo": ["Piante"],
-    "cactus": ["Piante"],
-    "animale": ["Animali"],
-    "animali": ["Animali"],
-    "savana": ["Animali"],
-    "anatroccolo": ["Animali"],
-    "ape": ["Animali"],
-    "aquila": ["Animali"],
-    "cane": ["Animali"],
-    "gatto": ["Animali"],
-    "coniglio": ["Animali"],
-    "elefante": ["Animali"],
-    "tigre": ["Animali"],
-    "uccello": ["Animali"],
-    "pappagallo": ["Animali"],
-    "pecora": ["Animali"],
-    "mucca": ["Animali"],
-    "cavallo": ["Animali"],
-    "maiale": ["Animali"],
-    "rana": ["Animali"],
-    "farfalla": ["Animali"],
-    "coccinella": ["Animali"],
-    "tartaruga": ["Animali"],
-    "lucertola": ["Animali"],
-    "serpente": ["Animali"],
-    "panda": ["Animali"],
-    "koala": ["Animali"],
-    "giraffa": ["Animali"],
-    "zebra": ["Animali"],
-    "riccio": ["Animali"],
-    "volpe": ["Animali"],
-    "lupo": ["Animali"],
-    "drago": ["Animali"],
-    "pinguino": ["Animali"],
-    "fenicottero": ["Animali"],
-    "tucano": ["Animali"],
-    "gorilla": ["Animali"],
-    "scimmia": ["Animali"],
-    "cervo": ["Animali"],
-    "criceto": ["Animali"],
-    "coccodrillo": ["Animali"],
-    "iguana": ["Animali"],
-    "camaleonte": ["Animali"],
-    "libellula": ["Animali"],
-    "lumaca": ["Animali"],
-    "rinoceronte": ["Animali"],
-    "ippopotamo": ["Animali"],
-    "lama": ["Animali"],
-    "alpaca": ["Animali"],
-    "cammello": ["Animali"],
-    "capra": ["Animali"],
-    "asino": ["Animali"],
-    "labrador": ["Animali"],
-    "balena": ["Animali", "Mare"],
-    "delfino": ["Animali", "Mare"],
-    "squalo": ["Animali", "Mare"],
-    "orca": ["Animali", "Mare"],
-    "pulcino": ["Animali", "Pasqua"],
-    "aereo": ["Viaggi"],
-    "aeroplano": ["Viaggi"],
-    "nave": ["Viaggi"],
-    "treno": ["Viaggi"],
-    "camper": ["Viaggi"],
-    "mongolfiera": ["Viaggi"],
-    "elicottero": ["Viaggi"],
-    "razzo": ["Viaggi"],
-    "valigia": ["Viaggi"],
-    "passaporto": ["Viaggi"],
-    "barca": ["Viaggi", "Mare"],
-    "bicicletta": ["Viaggi"],
-    "bici": ["Viaggi"],
+    "foglia": ["Piante"], "agrifoglio": ["Piante"], "edera": ["Piante"], "fungo": ["Piante"], "cactus": ["Piante"],
+    "animale": ["Animali"], "animali": ["Animali"], "savana": ["Animali"], "anatroccolo": ["Animali"],
+    "ape": ["Animali"], "aquila": ["Animali"], "cane": ["Animali"], "gatto": ["Animali"], "coniglio": ["Animali"],
+    "elefante": ["Animali"], "tigre": ["Animali"], "uccello": ["Animali"], "pappagallo": ["Animali"],
+    "pecora": ["Animali"], "mucca": ["Animali"], "cavallo": ["Animali"], "maiale": ["Animali"], "rana": ["Animali"],
+    "farfalla": ["Animali"], "coccinella": ["Animali"], "tartaruga": ["Animali"], "lucertola": ["Animali"],
+    "serpente": ["Animali"], "panda": ["Animali"], "koala": ["Animali"], "giraffa": ["Animali"], "zebra": ["Animali"],
+    "riccio": ["Animali"], "volpe": ["Animali"], "lupo": ["Animali"], "drago": ["Animali"], "pinguino": ["Animali"],
+    "fenicottero": ["Animali"], "tucano": ["Animali"], "gorilla": ["Animali"], "scimmia": ["Animali"],
+    "cervo": ["Animali"], "criceto": ["Animali"], "coccodrillo": ["Animali"], "iguana": ["Animali"],
+    "camaleonte": ["Animali"], "libellula": ["Animali"], "lumaca": ["Animali"], "rinoceronte": ["Animali"],
+    "ippopotamo": ["Animali"], "lama": ["Animali"], "alpaca": ["Animali"], "cammello": ["Animali"], "capra": ["Animali"],
+    "asino": ["Animali"], "labrador": ["Animali"], "papero": ["Animali"], "balena": ["Animali", "Mare"], "delfino": ["Animali", "Mare"],
+    "squalo": ["Animali", "Mare"], "orca": ["Animali", "Mare"], "pulcino": ["Animali", "Pasqua"],
+
+    "aereo": ["Viaggi"], "aeroplano": ["Viaggi"], "nave": ["Viaggi"], "treno": ["Viaggi"], "camper": ["Viaggi"],
+    "mongolfiera": ["Viaggi"], "elicottero": ["Viaggi"], "razzo": ["Viaggi"], "valigia": ["Viaggi"],
+    "passaporto": ["Viaggi"], "barca": ["Viaggi", "Mare"], "barchetta": ["Viaggi", "Mare"], "bicicletta": ["Viaggi"], "bici": ["Viaggi"],
     "timbro": ["Timbri"],
-    "mare": ["Mare"],
-    "oceano": ["Mare"],
-    "polpo": ["Mare"],
-    "medusa": ["Mare"],
-    "granchio": ["Mare"],
-    "stella_marina": ["Mare"],
-    "corallo": ["Mare"],
-    "sirena": ["Mare"],
-    "conchiglia": ["Mare"],
-    "aragosta": ["Mare"],
-    "gambero": ["Mare"],
-    "spiaggia": ["Mare"],
-    "ancora": ["Mare"],
-    "faro": ["Mare"],
-    "sottomarino": ["Mare"],
+    "mare": ["Mare"], "oceano": ["Mare"], "polpo": ["Mare"], "medusa": ["Mare"], "granchio": ["Mare"],
+    "stella_marina": ["Mare"], "corallo": ["Mare"], "sirena": ["Mare"], "conchiglia": ["Mare"], "aragosta": ["Mare"],
+    "gambero": ["Mare"], "spiaggia": ["Mare"], "ancora": ["Mare"], "faro": ["Mare"], "sottomarino": ["Mare"],
     "pesce": ["Mare", "Animali"],
     "battesimo": ["Battesimo"],
     "comunione": ["Comunione"],
     "cresima": ["Cresima"],
-    "natale": ["Natale"],
-    "babbo": ["Natale"],
-    "renna": ["Natale"],
-    "elfo": ["Natale"],
-    "slitta": ["Natale"],
-    "ghirlanda": ["Natale"],
-    "presepe": ["Natale"],
-    "bambino": ["Bambini"],
-    "bambina": ["Bambini"],
-    "baby": ["Bambini"],
-    "neonato": ["Bambini"],
-    "bimbo": ["Bambini"],
-    "bimba": ["Bambini"],
-    "culla": ["Bambini"],
-    "carrozzina": ["Bambini"],
-    "ciuccio": ["Bambini"],
-    "barbie": ["Barbie"],
-    "ken": ["Barbie"],
-    "batman": ["Supereroi"],
-    "superman": ["Supereroi"],
-    "spiderman": ["Supereroi"],
-    "capitan_america": ["Supereroi"],
-    "iron_man": ["Supereroi"],
-    "thor": ["Supereroi"],
-    "hulk": ["Supereroi"],
-    "wonder_woman": ["Supereroi"],
-    "avengers": ["Supereroi"],
-    "deadpool": ["Supereroi"],
-    "wolverine": ["Supereroi"],
-    "groot": ["Supereroi"],
-    "pantera_nera": ["Supereroi"],
-    "fumetto": ["Supereroi"],
-    "fumetti": ["Supereroi"],
-    "disney": ["Disney"],
-    "paperino": ["Disney"],
-    "pluto": ["Disney"],
-    "pippo": ["Disney"],
-    "cenerentola": ["Disney"],
-    "biancaneve": ["Disney"],
-    "ariel": ["Disney"],
-    "sirenetta": ["Disney"],
-    "rapunzel": ["Disney"],
-    "mulan": ["Disney"],
-    "pocahontas": ["Disney"],
-    "bambi": ["Disney"],
-    "dumbo": ["Disney"],
-    "pinocchio": ["Disney"],
-    "winnie": ["Winnie The Pooh", "Disney"],
-    "pooh": ["Winnie The Pooh", "Disney"],
+    "natale": ["Natale"], "babbo": ["Natale"], "renna": ["Natale"], "elfo": ["Natale"], "slitta": ["Natale"],
+    "ghirlanda": ["Natale"], "presepe": ["Natale"], 
+
+    "bambino": ["Bambini"], "bambina": ["Bambini"], "baby": ["Bambini"], "neonato": ["Bambini"], "bimbo": ["Bambini"],
+    "bimba": ["Bambini"], "culla": ["Bambini"], "carrozzina": ["Bambini"], "ciuccio": ["Bambini"],
+
+    "barbie": ["Barbie"], "ken": ["Barbie"],
+
+    "baby_boss": ["Baby Boss"], "boss_baby": ["Baby Boss"],
+
+    "batman": ["Supereroi"], "superman": ["Supereroi"], "spiderman": ["Supereroi"], "capitan_america": ["Supereroi"],
+    "iron_man": ["Supereroi"], "thor": ["Supereroi"], "hulk": ["Supereroi"], "wonder_woman": ["Supereroi"],
+    "avengers": ["Supereroi"], "deadpool": ["Supereroi"], "wolverine": ["Supereroi"], "groot": ["Supereroi"],
+    "pantera_nera": ["Supereroi"], "fumetto": ["Supereroi"], "fumetti": ["Supereroi"],
+
+    "disney": ["Disney"], "paperino": ["Disney"], "pluto": ["Disney"], "pippo": ["Disney"], "cenerentola": ["Disney"],
+    "biancaneve": ["Disney"], "ariel": ["Disney"], "sirenetta": ["Disney"], "rapunzel": ["Disney"], "mulan": ["Disney"],
+    "pocahontas": ["Disney"], "bambi": ["Disney"], "dumbo": ["Disney"], "pinocchio": ["Disney"],
+    
+    "winnie": ["Winnie The Pooh", "Disney"], "pooh": ["Winnie The Pooh", "Disney"],
     "lilo": ["Disney", "Stitch"],
     "nemo": ["Disney"],
     "dory": ["Disney", "Mare"],
-    "buzz": ["Disney"],
-    "woody": ["Disney"],
-    "toy_story": ["Disney"],
-    "coco": ["Disney"],
-    "encanto": ["Disney"],
-    "alice": ["Disney"],
-    "peter_pan": ["Disney"],
-    "trilli": ["Disney"],
-    "trilly": ["Disney"],
-    "aladdin": ["Disney"],
-    "tarzan": ["Disney"],
-    "aurora": ["Disney"],
-    "gaston": ["Disney"],
-    "jasmine": ["Disney"],
-    "bella_bestia": ["Disney", "Bella e Bestia"],
-    "bella_specchio": ["Disney", "Bella e Bestia"],
-    "belle_scomponibile": ["Disney", "Bella e Bestia"],
-    "bestia": ["Disney", "Bella e Bestia"],
+    "buzz": ["Disney"], "woody": ["Disney"], "toy_story": ["Disney"], "coco": ["Disney"], "encanto": ["Disney"],
+    "alice": ["Disney"], "peter_pan": ["Disney"], "trilli": ["Disney"], "trilly": ["Disney"], "aladdin": ["Disney"],
+    "tarzan": ["Disney"], "aurora": ["Disney"], "gaston": ["Disney"], "jasmine": ["Disney"],
+    "bella_bestia": ["Disney", "Bella e Bestia"], "bella_specchio": ["Disney", "Bella e Bestia"],
+    "belle_scomponibile": ["Disney", "Bella e Bestia"], "bestia": ["Disney", "Bella e Bestia"],
     "cappuccetto": ["Bambini"],
     "inside_out": ["Disney", "Inside Out"],
-    "principesse": ["Disney", "Principesse"],
-    "carrozza": ["Disney", "Principesse"],
+    "principesse": ["Disney", "Principesse"], "carrozza": ["Disney", "Principesse"],
     "aristogatti": ["Disney", "Animali"],
     "carica_101": ["Disney", "Carica 101"],
-    "zootropolis": ["Disney", "Zootropolis", "Animali"],
-    "zootopia": ["Disney", "Zootropolis", "Animali"],
+    "zootropolis": ["Disney", "Zootropolis", "Animali"], "zootopia": ["Disney", "Zootropolis", "Animali"],
     "dalmata": ["Disney", "Animali"],
     "bing": ["Bing"],
-    "calcio": ["Sport"],
-    "basket": ["Sport"],
-    "tennis": ["Sport"],
-    "pallavolo": ["Sport"],
-    "nuoto": ["Sport"],
-    "boxe": ["Sport"],
-    "karate": ["Sport"],
-    "golf": ["Sport"],
-    "rugby": ["Sport"],
-    "football": ["Sport"],
-    "pallone": ["Sport"],
-    "pattinaggio": ["Sport"],
-    "sci": ["Sport"],
-    "snowboard": ["Sport"],
-    "surf": ["Sport"],
-    "skateboard": ["Sport"],
-    "danza": ["Sport"],
-    "ginnastica": ["Sport"],
-    "baseball": ["Sport"],
-    "casa": ["Case"],
-    "case": ["Case"],
-    "casetta": ["Case"],
-    "villetta": ["Case"],
-    "castello": ["Case"],
-    "pizza": ["Cibo"],
-    "bottiglia": ["Cibo"],
-    "candy_cane": ["Natale", "Cibo"],
-    "biglietto": ["Cinema"],
+    "calcio": ["Sport"], "basket": ["Sport"], "tennis": ["Sport"], "pallavolo": ["Sport"], "nuoto": ["Sport"],
+    "boxe": ["Sport"], "karate": ["Sport"], "golf": ["Sport"], "rugby": ["Sport"], "football": ["Sport"],
+    "pallone": ["Sport"], "pattinaggio": ["Sport"], "sci": ["Sport"], "snowboard": ["Sport"], "surf": ["Sport"],
+    "skateboard": ["Sport"], "danza": ["Sport"], "ginnastica": ["Sport"], "baseball": ["Sport"],
+
+   "casa": ["Case"], "case": ["Case"], "casetta": ["Case"], "villetta": ["Case"], "castello": ["Case"],
+
+    "pizza": ["Cibo"], "bottiglia": ["Cibo"], "candy_cane": ["Natale", "Cibo"],
+     "biglietto": ["Cinema"],
     "fiocchetto": ["Fiocchi"],
-    "cavalli": ["Animali"],
-    "osso": ["Animali"],
+    "cavalli": ["Animali"], "osso": ["Animali"],
     "neve": ["Natale"],
     "tiktok": ["Musica"],
     "mappamondo": ["Viaggi"],
     "quadrato": ["Cornici"],
     "cavalluccio_marino": ["Animali", "Mare"],
-    "torta": ["Cibo"],
-    "gelato": ["Cibo"],
-    "dolce": ["Cibo"],
-    "biscotto": ["Cibo"],
-    "bottiglia":["Cibo"],
-    "cioccolato": ["Cibo"],
-    "fragola": ["Cibo"],
-    "anguria": ["Cibo"],
-    "ciliegia": ["Cibo"],
-    "mela": ["Cibo"],
-    "arancia": ["Cibo"],
-    "limone": ["Cibo"],
-    "banana": ["Cibo"],
-    "ananas": ["Cibo"],
-    "cupcake": ["Cibo"],
-    "muffin": ["Cibo"],
-    "hamburger": ["Cibo"],
-    "sushi": ["Cibo"],
-    "pane": ["Cibo"],
-    "frutta": ["Cibo"],
-    "verdura": ["Cibo"],
-    "carota": ["Cibo"],
-    "pomodoro": ["Cibo"],
-    "melone": ["Cibo"],
-    "uva": ["Cibo"],
-    "kiwi": ["Cibo"],
-    "mango": ["Cibo"],
-    "caramella": ["Cibo"],
-    "lecca_lecca": ["Cibo"],
-    "donut": ["Cibo"],
-    "macaron": ["Cibo"],
-    "waffle": ["Cibo"],
-    "pancake": ["Cibo"],
+    "torta": ["Cibo"], "gelato": ["Cibo"], "dolce": ["Cibo"], "biscotto": ["Cibo"], "bottiglia":["Cibo"],
+    "cioccolato": ["Cibo"], "fragola": ["Cibo"], "anguria": ["Cibo"], "ciliegia": ["Cibo"], "mela": ["Cibo"], 
+    "arancia": ["Cibo"], "limone": ["Cibo"], "banana": ["Cibo"], "ananas": ["Cibo"], "cupcake": ["Cibo"],
+    "muffin": ["Cibo"], "hamburger": ["Cibo"], "sushi": ["Cibo"], "pane": ["Cibo"], "frutta": ["Cibo"],
+    "verdura": ["Cibo"], "carota": ["Cibo"], "pomodoro": ["Cibo"], "melone": ["Cibo"], "uva": ["Cibo"], "kiwi": ["Cibo"],
+    "mango": ["Cibo"], "caramella": ["Cibo"], "lecca_lecca": ["Cibo"], "donut": ["Cibo"], "macaron": ["Cibo"],
+    "waffle": ["Cibo"], "pancake": ["Cibo"],
     "popcorn": ["Cibo", "Cinema"],
-    "giocattolo": ["Giocattoli"],
-    "pupazzo": ["Giocattoli"],
-    "palloncino": ["Giocattoli"],
-    "peluche": ["Giocattoli"],
-    "bambola": ["Giocattoli"],
-    "aquilone": ["Giocattoli"],
+    "giocattolo": ["Giocattoli"], "pupazzo": ["Giocattoli"], "palloncino": ["Giocattoli"], "peluche": ["Giocattoli"],
+    "bambola": ["Giocattoli"], "aquilone": ["Giocattoli"],
     "cocomelon": ["Cocomelon"],
-    "matrimonio": ["Matrimonio"],
-    "sposi": ["Matrimonio"],
-    "wedding": ["Matrimonio"],
-    "fedi": ["Matrimonio"],
+    "matrimonio": ["Matrimonio"], "sposi": ["Matrimonio"], "wedding": ["Matrimonio"], "fedi": ["Matrimonio"],
     "sposa": ["Matrimonio"],
-    "pasqua": ["Pasqua"],
-    "uovo": ["Pasqua"],
+    "pasqua": ["Pasqua"], "uovo": ["Pasqua"],
     "colomba": ["Pasqua", "Animali"],
-    "cornice": ["Cornici"],
-    "frame": ["Cornici"],
-    "dinosauro": ["Dinosauri"],
-    "dino": ["Dinosauri"],
-    "t_rex": ["Dinosauri"],
-    "triceratopo": ["Dinosauri"],
-    "pterodattilo": ["Dinosauri"],
-    "velociraptor": ["Dinosauri"],
-    "fiocco": ["Fiocchi"],
-    "nastro": ["Fiocchi"],
-    "archetto": ["Fiocchi"],
-    "frozen": ["Frozen"],
-    "elsa": ["Frozen"],
-    "olaf": ["Frozen"],
-    "kristoff": ["Frozen"],
-    "halloween": ["Halloween"],
-    "zucca": ["Halloween"],
-    "fantasma": ["Halloween"],
-    "strega": ["Halloween"],
-    "scheletro": ["Halloween"],
-    "pipistrello": ["Halloween"],
-    "ragnatela": ["Halloween"],
-    "zombie": ["Halloween"],
+    "cornice": ["Cornici"], "cornici": ["Cornici"], "frame": ["Cornici"],
+    "dinosauro": ["Dinosauri"], "dino": ["Dinosauri"], "t_rex": ["Dinosauri"], "triceratopo": ["Dinosauri"],
+    "pterodattilo": ["Dinosauri"], "velociraptor": ["Dinosauri"],
+    "fiocco": ["Fiocchi"], "nastro": ["Fiocchi"], "archetto": ["Fiocchi"],
+    "frozen": ["Frozen"], "elsa": ["Frozen"], "olaf": ["Frozen"], "kristoff": ["Frozen"],
+    "halloween": ["Halloween"], "zucca": ["Halloween"], "fantasma": ["Halloween"], "strega": ["Halloween"],
+    "scheletro": ["Halloween"], "pipistrello": ["Halloween"], "ragnatela": ["Halloween"], "zombie": ["Halloween"],
     "vampiro": ["Halloween"],
-    "harry_potter": ["Harry Potter"],
-    "hogwarts": ["Harry Potter"],
-    "hermione": ["Harry Potter"],
-    "quidditch": ["Harry Potter"],
-    "hello_kitty": ["Hello Kitty"],
-    "kitty": ["Hello Kitty"],
-    "macchina": ["Viaggi"],
-    "automobile": ["Viaggi"],
-    "ferrari": ["Viaggi"],
-    "lamborghini": ["Viaggi"],
-    "monster_truck": ["Viaggi"],
-    "trattore": ["Viaggi"],
-    "camion": ["Viaggi"],
-    "autobus": ["Viaggi"],
-    "ambulanza": ["Viaggi"],
-    "pompieri": ["Viaggi"],
-    "polizia": ["Viaggi"],
-    "ruspa": ["Viaggi"],
-    "escavatore": ["Viaggi"],
-    "scooter": ["Viaggi"],
-    "moto": ["Viaggi"],
-    "laurea": ["Laurea"],
-    "diploma": ["Laurea"],
-    "dottorato": ["Laurea"],
-    "mamma": ["Festa della Mamma"],
-    "madre": ["Festa della Mamma"],
-    "frida_khalo": ["Festa della Donna"],
-    "frida": ["Festa della Donna"],
+    "harry_potter": ["Harry Potter"], "hogwarts": ["Harry Potter"], "hermione": ["Harry Potter"], "quidditch": ["Harry Potter"],
+    "hello_kitty": ["Hello Kitty"], "kitty": ["Hello Kitty"],
+    "macchina": ["Viaggi"], "automobile": ["Viaggi"], "ferrari": ["Viaggi"], "lamborghini": ["Viaggi"],
+    "monster_truck": ["Viaggi"], "trattore": ["Viaggi"], "camion": ["Viaggi"], "autobus": ["Viaggi"],
+    "ambulanza": ["Viaggi"], "pompieri": ["Viaggi"], "polizia": ["Viaggi"], "ruspa": ["Viaggi"],
+    "escavatore": ["Viaggi"], "scooter": ["Viaggi"], "moto": ["Viaggi"],
+    "laurea": ["Laurea"], "diploma": ["Laurea"],"dottorato": ["Laurea"],
+    "mamma": ["Festa della Mamma"], "madre": ["Festa della Mamma"],
+    "frida_khalo": ["Festa della Donna"], "frida": ["Festa della Donna"],
     "masha": ["Masha e Orso"],
-    "nonno": ["Festa dei Nonni"],
-    "nonna": ["Festa dei Nonni"],
-    "nonni": ["Festa dei Nonni"],
+    "nonno": ["Festa dei Nonni"], "nonna": ["Festa dei Nonni"], "nonni": ["Festa dei Nonni"],
     "numero": ["Numeri"],
-    "oceania": ["Oceania", "Disney"],
-    "moana": ["Oceania", "Disney"],
+    "oceania": ["Oceania", "Disney"], "moana": ["Oceania", "Disney"],
     "maui": ["Oceania"],
-    "orsetto": ["Orsetti"],
-    "orsetti": ["Orsetti"],
-    "teddy": ["Orsetti"],
-    "orsacchiotto": ["Orsetti"],
+    "orsetto": ["Animali"], "orsetti": ["Animali"], "teddy": ["Animali"], "orsacchiotto": ["Animali"],
     "peppa": ["Peppa Pig"],
-    "musica": ["Musica"],
-    "chitarra": ["Musica"],
-    "violino": ["Musica"],
-    "tromba": ["Musica"],
-    "sassofono": ["Musica"],
-    "microfono": ["Musica"],
-    "cuffie": ["Musica"],
-    "vinile": ["Musica"],
-    "acdc": ["Musica"],
-    "beatles": ["Musica"],
-    "pentagramma": ["Musica"],
-    "nota_musicale": ["Musica"],
-    "pjmask": ["PJmask"],
-    "pj_mask": ["PJmask"],
-    "pigiamini": ["PJmask"],
-    "cinema": ["Cinema"],
-    "ciak": ["Cinema"],
-    "pellicola": ["Cinema"],
-    "re_leone": ["Re Leone", "Disney"],
-    "simba": ["Re Leone", "Disney"],
-    "mufasa": ["Re Leone"],
-    "timon": ["Re Leone"],
-    "pumba": ["Re Leone"],
-    "trucco": ["Trucchi"],
-    "makeup": ["Trucchi"],
-    "rossetto": ["Trucchi"],
-    "smalto": ["Trucchi"],
-    "profumo": ["Trucchi"],
-    "cipria": ["Trucchi"],
-    "sonic": ["Sonic"],
-    "knuckles": ["Sonic"],
-    "eggman": ["Sonic"],
+    "musica": ["Musica"], "chitarra": ["Musica"], "violino": ["Musica"], "tromba": ["Musica"], "sassofono": ["Musica"],
+    "microfono": ["Musica"], "cuffie": ["Musica"], "vinile": ["Musica"], "acdc": ["Musica"], "beatles": ["Musica"], 
+    "pentagramma": ["Musica"], "nota_musicale": ["Musica"],
+    "pjmask": ["PJmask"], "pj_mask": ["PJmask"], "pigiamini": ["PJmask"],
+    "cinema": ["Cinema"], "ciak": ["Cinema"], "pellicola": ["Cinema"],
+    "re_leone": ["Re Leone", "Disney"], "simba": ["Re Leone", "Disney"],
+    "mufasa": ["Re Leone"], "timon": ["Re Leone"], "pumba": ["Re Leone"],
+    "trucco": ["Trucchi"], "makeup": ["Trucchi"], "rossetto": ["Trucchi"], "smalto": ["Trucchi"],
+    "profumo": ["Trucchi"], "cipria": ["Trucchi"],
+    "sonic": ["Sonic"], "knuckles": ["Sonic"], "eggman": ["Sonic"],
     "stitch": ["Stitch", "Disney"],
-    "stray_kids": ["Stray Kids"],
-    "straykids": ["Stray Kids"],
-    "mario": ["Super Mario"],
-    "luigi": ["Super Mario"],
-    "bowser": ["Super Mario"],
-    "yoshi": ["Super Mario"],
-    "koopa": ["Super Mario"],
-    "wario": ["Super Mario"],
-    "texture": ["Texture"],
-    "pattern": ["Texture"],
-    "topolino": ["Topolino", "Disney"],
-    "mickey": ["Topolino", "Disney"],
-    "minnie": ["Topolino", "Disney"],
+    "stray_kids": ["Stray Kids"], "straykids": ["Stray Kids"],
+    "mario": ["Super Mario"], "luigi": ["Super Mario"], "bowser": ["Super Mario"], "yoshi": ["Super Mario"], 
+    "koopa": ["Super Mario"], "wario": ["Super Mario"],
+    "texture": ["Texture"], "pattern": ["Texture"],
+    "topolino": ["Topolino", "Disney"], "mickey": ["Topolino", "Disney"], "minnie": ["Topolino", "Disney"],
     "topper": ["Topper"],
-    "unicorno": ["Unicorni"],
-    "unicorn": ["Unicorni"],
-    "pegaso": ["Unicorni"],
-    "vestito": ["Vestiti"],
-    "abito": ["Vestiti"],
-    "gonna": ["Vestiti"],
-    "felpa": ["Vestiti"],
-    "maglione": ["Vestiti"],
-    "cappotto": ["Vestiti"],
-    "costume": ["Vestiti"],
-    "tutina": ["Vestiti"],
+    "unicorno": ["Unicorni"], "unicorn": ["Unicorni"],
+    "pegaso": ["Unicorni"], "vestito": ["Vestiti"], "abito": ["Vestiti"], "gonna": ["Vestiti"], "felpa": ["Vestiti"],
+    "maglione": ["Vestiti"], "cappotto": ["Vestiti"], "costume": ["Vestiti"], "tutina": ["Vestiti"],
     "pigiama": ["Vestiti"],
     # --- keywords aggiuntive per ridurre "Altro" ---
     "arcobaleno": ["Bambini", "Unicorni"],
@@ -442,142 +184,73 @@ KEYWORD_MAP = {
     "coniglietto": ["Animali", "Pasqua"],
     "cigno": ["Animali"],
     "gallina": ["Animali", "Pasqua"],
-    "gattino": ["Animali"],
-    "elefantino": ["Animali"],
-    "elefantini": ["Animali"],
-    "cavalluccio": ["Animali"],
-    "oca": ["Animali"],
-    "leone": ["Animali"],
-    "stranger_things": ["Cinema"],
-    "squid_game": ["Cinema"],
-    "grinch": ["Natale"],
-    "schiaccianoci": ["Natale"],
-    "natalizio": ["Natale"],
-    "pandizenzero": ["Natale"],
+    "gattino": ["Animali"], "elefantino": ["Animali"], "elefantini": ["Animali"], "cavalluccio": ["Animali"],
+    "oca": ["Animali"], "leone": ["Animali"],
+    "stranger_things": ["Cinema"], "squid_game": ["Cinema"],
+    "grinch": ["Natale"], "schiaccianoci": ["Natale"], "natalizio": ["Natale"], "pandizenzero": ["Natale"],
     "timbri": ["Timbri"],
-    "numeri_bombati": ["Numeri"],
-    "numeri_sottili": ["Numeri"],
-    "cuore": ["Matrimonio"],
-    "cuori": ["Matrimonio"],
+    "numeri_bombati": ["Numeri"], "numeri_sottili": ["Numeri"],
+    "cuore": ["Matrimonio"], "cuori": ["Matrimonio"],
     "spumante": ["Matrimonio", "Compleanno"],
-    "flute": ["Matrimonio"],
-    "fedi": ["Matrimonio"],
-    "sposo": ["Matrimonio"],
-    "mr&mrs": ["Matrimonio"],
+    "flute": ["Matrimonio"], "fedi": ["Matrimonio"], "sposo": ["Matrimonio"], "mr&mrs": ["Matrimonio"],
     "champagne": ["Matrimonio", "Compleanno"],
     "wedding": ["Matrimonio"],
     "croce": ["Battesimo", "Comunione", "Cresima"],
     "case_composizione": ["Case"],
     "fattoria": ["Case", "Animali"],
-    "fienile": ["Case"],
-    "vetrina_negozio": ["Case"],
-    "moulin_rouge": ["Cinema"],
-    "moulen_rouge": ["Cinema"],
-    "joystick": ["Giocattoli"],
-    "puzzle": ["Giocattoli"],
-    "dondolo": ["Giocattoli"],
+    "fienile": ["Case"], "vetrina_negozio": ["Case"],
+    "moulin_rouge": ["Cinema"], "moulen_rouge": ["Cinema"],
+    "joystick": ["Giocattoli"], "puzzle": ["Giocattoli"], "dondolo": ["Giocattoli"],
     "sonaglino": ["Bambini", "Giocattoli"],
-    "bieberon": ["Bambini"],
-    "passeggino": ["Bambini"],
-    "culla": ["Bambini"],
+    "bieberon": ["Bambini"], "passeggino": ["Bambini"], "culla": ["Bambini"],
     "fiocchi": ["Fiocchi"],
-    "fragole": ["Cibo"],
-    "crostata": ["Cibo"],
-    "polpetta": ["Cibo"],
-    "marmellata": ["Cibo"],
-    "gelatino": ["Cibo"],
-    "tamburo": ["Musica"],
-    "cassetta": ["Musica"],
-    "vespa": ["Viaggi"],
-    "jeep": ["Viaggi"],
-    "treruote": ["Viaggi"],
-    "insegne_stradali": ["Viaggi"],
-    "mongolfiera": ["Viaggi"],
-    "valigie": ["Viaggi"],
-    "kimono": ["Vestiti"],
-    "maglia_tshirt": ["Vestiti"],
-    "giacca": ["Vestiti"],
-    "vestitino": ["Vestiti"],
-    "guanto": ["Vestiti"],
-    "guanti": ["Vestiti"],
-    "cappello": ["Vestiti"],
+    "fragole": ["Cibo"], "crostata": ["Cibo"], "polpetta": ["Cibo"], "marmellata": ["Cibo"], "gelatino": ["Cibo"],
+    "tamburo": ["Musica"], "cassetta": ["Musica"],
+    "vespa": ["Viaggi"], "jeep": ["Viaggi"], "treruote": ["Viaggi"], "insegne_stradali": ["Viaggi"],
+    "mongolfiera": ["Viaggi"], "valigie": ["Viaggi"],
+    "kimono": ["Vestiti"], "maglia_tshirt": ["Vestiti"], "giacca": ["Vestiti"], "vestitino": ["Vestiti"],
+    "guanto": ["Vestiti"], "guanti": ["Vestiti"], "cappello": ["Vestiti"],
+    "cravatta": ["Vestiti"], "papillon": ["Vestiti"], "colletto": ["Vestiti"],
+    "semaforo": ["Viaggi"], "motocross": ["Sport", "Viaggi"],
+    "rosario": ["Comunione"],
     "wonderwoman": ["Supereroi"],
-    "quadrifoglio": ["Piante"],
-    "foglie": ["Piante"],
-    "funghetto": ["Piante"],
-    "funghi": ["Piante"],
+    "quadrifoglio": ["Piante"], "foglie": ["Piante"], "funghetto": ["Piante"], "funghi": ["Piante"],
     "fiori": ["Fiori"],
-    "corallo": ["Mare"],
-    "spirale_acqua": ["Mare"],
-    "onde": ["Mare"],
-    "palla_neve": ["Natale"],
-    "elfo": ["Natale"],
-    "renna": ["Natale"],
+    "corallo": ["Mare"], "spirale_acqua": ["Mare"], "onde": ["Mare"],
+    "palla_neve": ["Natale"], "elfo": ["Natale"], "renna": ["Natale"],
     "demogorgone": ["Cinema"],
-    "stirch": ["Stitch", "Disney"],
-    "angel": ["Stitch", "Disney"],
-    "knuckles": ["Sonic"],
-    "eggman": ["Sonic"],
+    "stirch": ["Stitch", "Disney"], "angel": ["Stitch", "Disney"],
+    "knuckles": ["Sonic"], "eggman": ["Sonic"],
     # ulteriori
-    "orso_viso": ["Orsetti"],
-    "orso_nuvola": ["Orsetti"],
-    "orso": ["Orsetti"],
+    "orso_viso": ["Animali"], "orso_nuvola": ["Animali"], "orso": ["Animali"],
     "corona": ["Unicorni"],           # corona è tipica unicorni/principesse
     "zucche": ["Halloween"],
     "palloncini": ["Giocattoli"],
-    "pacco_regalo": ["Fiocchi", "Natale"],
-    "pacchi_regalo": ["Fiocchi", "Natale"],
-    "carote": ["Cibo"],
-    "pera": ["Cibo"],
-    "prugna": ["Cibo"],
+    "pacco_regalo": ["Fiocchi", "Natale"], "pacchi_regalo": ["Fiocchi", "Natale"],
+    "carote": ["Cibo"], "pera": ["Cibo"], "prugna": ["Cibo"],
     "farfalle": ["Animali"],
-    "circo": ["Bambini"],
-    "nuvola": ["Bambini"],
-    "nuvoletta": ["Bambini"],
-    "happy_birthday": ["Compleanno"],
-    "birthday": ["Compleanno"],
-    "compleanno": ["Compleanno"],
+    "circo": ["Bambini"], "nuvola": ["Bambini"], "nuvoletta": ["Bambini"],
+    "happy_birthday": ["Compleanno"], "birthday": ["Compleanno"], "compleanno": ["Compleanno"],
     "love": ["Matrimonio"],
     "labbra": ["Trucchi"],
-    "circo_giostra": ["Bambini"],
-    "uno": ["Bambini"],
-    "one": ["Bambini"],
+    "circo_giostra": ["Bambini"], "uno": ["Bambini"], "one": ["Bambini"],
     "tazza": ["Cibo"],
     "lanterna": ["Natale"],
     "texrture": ["Texture"],
-    "orologio": ["Vestiti"],
-    "scarpa": ["Vestiti"],
-    "occhiali": ["Vestiti"],
-    "corsetto": ["Vestiti"],
-    "sciarpa": ["Vestiti"],
-    "libro": ["Laurea"],
-    "libri": ["Laurea"],
-    "matita": ["Bambini"],
-    "matite": ["Bambini"],
+    "orologio": ["Vestiti"], "scarpa": ["Vestiti"], "occhiali": ["Vestiti"], "corsetto": ["Vestiti"], "sciarpa": ["Vestiti"],
+    "libro": ["Laurea"], "libri": ["Laurea"],
+    "matita": ["Bambini"], "matite": ["Bambini"],
     # Lusso
-    "chanel": ["Lusso"],
-    "gucci": ["Lusso"],
-    "prada": ["Lusso"],
-    "versace": ["Lusso"],
-    "dior": ["Lusso"],
-    "louis_vuitton": ["Lusso"],
-    "vuitton": ["Lusso"],
-    "hermes": ["Lusso"],
-    "rolex": ["Lusso"],
-    "balenciaga": ["Lusso"],
-    "fendi": ["Lusso"],
-    "armani": ["Lusso"],
-    "valentino": ["Lusso"],
-    "cartier": ["Lusso"],
-    "bulgari": ["Lusso"],
-    "tiffany": ["Lusso"],
+    "chanel": ["Lusso"], "gucci": ["Lusso"], "prada": ["Lusso"], "versace": ["Lusso"], "dior": ["Lusso"],
+    "louis_vuitton": ["Lusso"], "vuitton": ["Lusso"], "hermes": ["Lusso"], "rolex": ["Lusso"],
+    "balenciaga": ["Lusso"], "fendi": ["Lusso"], "armani": ["Lusso"], "valentino": ["Lusso"],
+    "cartier": ["Lusso"], "bulgari": ["Lusso"], "tiffany": ["Lusso"],
 }
 
 # Ordine delle keyword: le più lunghe prima, per evitare falsi match su
 # keyword corte contenute in keyword più lunghe (es. "moto" dentro "mongolfiera").
 # Per sicurezza ordiniamo per lunghezza decrescente al momento del match.
 SORTED_KEYWORDS = sorted(KEYWORD_MAP.keys(), key=len, reverse=True)
-
 
 # ---------------------------------------------------------------------------
 # Funzione di classificazione
@@ -595,7 +268,6 @@ def normalize(filename: str) -> str:
     stem = stem.lower()
     stem = stem.replace(" ", "_")
     return stem
-
 
 def classify(filename: str) -> list[str]:
     """Restituisce lista di categorie per il filename dato."""
@@ -627,6 +299,10 @@ def classify(filename: str) -> list[str]:
     # "papera" contiene "pera" → matcha Cibo (falso positivo).
     if "papera" in stem:
         cats.discard("Cibo")
+
+    # "rosario" contiene "rosa" → matcha Fiori (falso positivo).
+    if "rosario" in stem:
+        cats.discard("Fiori")
 
     # "ingranaggio" contiene "rana" → matcha Animali (falso positivo).
     if "ingranaggio" in stem:
@@ -677,6 +353,11 @@ def classify(filename: str) -> list[str]:
     if "_con_fior" in stem:
         cats.discard("Fiori")
 
+    # "_con_foglie"/"_con_foglia": le foglie sono una decorazione, il prodotto
+    # principale non è una pianta (es. Cornice_Ovale_con_Foglie, Comunione_Calice_con_Foglie).
+    if "_con_fogli" in stem:
+        cats.discard("Piante")
+
     # "fiorellini" sono dettagli decorativi (cf. Texture_Fiorellini), non
     # prodotti della cat Fiori.
     if "fiorellini" in stem:
@@ -687,9 +368,9 @@ def classify(filename: str) -> list[str]:
     if "unicorno_torta" in stem:
         cats.discard("Cibo")
 
-    # "corsetto" contiene "orsetto" → falso positivo Orsetti.
+    # "corsetto" contiene "orsetto" → falso positivo Animali (era Orsetti).
     if "corsetto" in stem:
-        cats.discard("Orsetti")
+        cats.discard("Animali")
 
     # I prodotti che iniziano con "targa" sono targhette (Cornici). Per gli
     # altri "X_targa" la categoria primaria è X (es. Mongolfiera_targa).
@@ -768,8 +449,8 @@ def classify(filename: str) -> list[str]:
 
     # Sub-categorie di Bambini: i prodotti delle sub-cat ricevono anche la
     # categoria "Bambini" parent.
-    BAMBINI_CHILDREN = {"Barbie", "Bing", "Cocomelon", "Dinosauri",
-                        "Hello Kitty", "Masha e Orso", "Orsetti", "Peppa Pig",
+    BAMBINI_CHILDREN = {"Baby Boss", "Barbie", "Bing", "Cocomelon", "Dinosauri",
+                        "Harry Potter", "Hello Kitty", "Masha e Orso", "Peppa Pig",
                         "PJmask", "Sonic", "Super Mario", "Supereroi",
                         "Unicorni"}
     if cats & BAMBINI_CHILDREN:
@@ -838,7 +519,6 @@ def classify(filename: str) -> list[str]:
 
     return sorted(cats) if cats else ["Altro"]
 
-
 # ---------------------------------------------------------------------------
 # Costruzione catalogo prodotti
 # ---------------------------------------------------------------------------
@@ -852,14 +532,12 @@ def _group_files() -> dict:
         groups[key].append(f.name)
     return groups
 
-
 def _sort_imgs(names: list[str]) -> list[str]:
     """Ordina le immagini di un prodotto per suffisso numerico."""
     return sorted(names, key=lambda n: (
         int(re.search(r"__(\d+)$", Path(n).stem).group(1))
         if re.search(r"__(\d+)$", Path(n).stem) else 0
     ))
-
 
 def load_existing_products() -> dict[str, dict]:
     """Carica products.json esistente come dizionario {name: product}."""
@@ -873,7 +551,6 @@ def load_existing_products() -> dict[str, dict]:
     except Exception as e:
         print(f"Attenzione: impossibile leggere {OUTPUT_JSON}: {e}")
         return {}
-
 
 def build_products(existing: dict[str, dict] | None = None) -> list[dict]:
     """
@@ -912,7 +589,6 @@ def build_products(existing: dict[str, dict] | None = None) -> list[dict]:
 
     return products
 
-
 # ---------------------------------------------------------------------------
 # Generazione thumbnail
 # ---------------------------------------------------------------------------
@@ -927,7 +603,6 @@ def _apply_watermark_to_image(img, wm):
     wm_resized.putalpha(alpha)
     img.alpha_composite(wm_resized)
     return img
-
 
 def apply_watermarks() -> None:
     """Applica filigrana ai webp, una sola volta. Backup originali in imgs/originals/."""
@@ -956,7 +631,6 @@ def apply_watermarks() -> None:
             print(f"  {processed} watermark applicati...")
     if processed:
         print(f"Watermark applicato a {processed} nuove immagini (backup in {ORIGINALS_DIR})")
-
 
 def generate_thumbnails() -> None:
     from PIL import Image
@@ -992,7 +666,6 @@ def generate_thumbnails() -> None:
     generated = len(files) - skipped
     print(f"Thumbnail: {generated} generate, {skipped} già aggiornate → {THUMB_DIR}")
 
-
 # ---------------------------------------------------------------------------
 # Statistiche
 # ---------------------------------------------------------------------------
@@ -1014,26 +687,19 @@ def print_stats(products: list[dict]) -> None:
             if p["c"] == ["Altro"]:
                 print(f"  - {p['n']}")
 
-
 # ---------------------------------------------------------------------------
 # Generazione HTML
 # ---------------------------------------------------------------------------
 ALL_CATEGORIES = [
-    "Alfabeto", "Altro", "Animali", "Bambini", "Barbie", "Battesimo",
-    "Bella e Bestia", "Bing", "Carica 101", "Case", "Cibo", "Cinema",
-    "Cocomelon", "Compleanno", "Comunione", "Cornici", "Cresima", "Dinosauri",
-    "Disney",
-    "Festa dei Nonni", "Festa della Donna", "Festa della Mamma", "Fiocchi",
-    "Fiori", "Frozen", "Giocattoli", "Halloween", "Harry Potter", "Hello Kitty",
-    "Inside Out", "Laurea", "Lusso", "Mare", "Masha e Orso", "Matrimonio",
-    "Musica", "Natale",
-    "Numeri", "Oceania", "Orsetti", "Pasqua", "Peppa Pig", "Piante", "PJmask",
-    "Principesse", "Re Leone", "Sonic", "Sport", "Stitch", "Stray Kids",
-    "Super Mario", "Supereroi", "Texture", "Timbri", "Topolino", "Topper",
-    "Trucchi", "Unicorni", "Vestiti", "Viaggi", "Winnie The Pooh",
-    "Zootropolis",
+    "Alfabeto", "Altro", "Animali", "Baby Boss", "Bambini", "Barbie", "Battesimo", "Bella e Bestia", "Bing",
+    "Carica 101", "Case", "Cibo", "Cinema","Cocomelon", "Compleanno", "Comunione", "Cornici", "Cresima",
+    "Dinosauri","Disney", "Festa dei Nonni", "Festa della Donna", "Festa della Mamma", "Fiocchi",
+    "Fiori", "Frozen", "Giocattoli", "Halloween", "Harry Potter", "Hello Kitty", "Inside Out", 
+    "Laurea", "Lusso", "Mare", "Masha e Orso", "Matrimonio", "Musica", "Natale", "Numeri", "Oceania",
+    "Pasqua", "Peppa Pig", "Piante", "PJmask", "Principesse", "Re Leone", "Sonic", "Sport",
+    "Stitch", "Stray Kids", "Super Mario", "Supereroi", "Texture", "Timbri", "Topolino", "Topper",
+    "Trucchi", "Unicorni", "Vestiti", "Viaggi", "Winnie The Pooh", "Zootropolis",
 ]
-
 
 def generate_html() -> str:
     categories_json = json.dumps(ALL_CATEGORIES, ensure_ascii=False, separators=(",", ":"))
@@ -1750,8 +1416,9 @@ function loadImg(img) {{
 function filtered() {{
   return PRODUCTS.filter(p => {{
     const catOk = state.category === "Tutti" || p.c.includes(state.category);
-    const q = state.search.trim().toLowerCase();
-    return catOk && (!q || p.n.toLowerCase().includes(q));
+    const q = state.search.trim().toLowerCase().replace(/[_\s]+/g, " ");
+    const name = p.n.toLowerCase().replace(/[_\s]+/g, " ");
+    return catOk && (!q || name.includes(q));
   }});
 }}
 
@@ -1761,7 +1428,7 @@ function catCount(cat) {{
 }}
 
 const HIERARCHY = {{
-  "Bambini": ["Barbie", "Bing", "Cocomelon", "Dinosauri", "Hello Kitty", "Masha e Orso", "Orsetti", "Peppa Pig", "PJmask", "Sonic", "Super Mario", "Supereroi", "Unicorni"],
+  "Bambini": ["Baby Boss", "Barbie", "Bing", "Cocomelon", "Dinosauri", "Harry Potter", "Hello Kitty", "Masha e Orso", "Peppa Pig", "PJmask", "Sonic", "Super Mario", "Supereroi", "Unicorni"],
   "Disney": ["Bella e Bestia", "Carica 101", "Frozen", "Inside Out", "Oceania", "Principesse", "Re Leone", "Stitch", "Topolino", "Winnie The Pooh", "Zootropolis"]
 }};
 const CHILD_TO_PARENT = {{}};
@@ -2084,7 +1751,6 @@ if ("serviceWorker" in navigator)
 </body>
 </html>"""
     return html
-
 
 # ---------------------------------------------------------------------------
 # Entry point
